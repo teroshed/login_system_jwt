@@ -5,3 +5,8 @@
 html, body {
   height: 100%;
 }
+
+.window
+{
+  max-width: 10%!important;
+}

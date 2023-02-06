@@ -7,7 +7,7 @@ function Client() {
   
   return (
     <div className="App">
-      <div className="border col-8 mx-auto mt-4"> 
+      <div className="window border col-8 mx-auto mt-4"> 
         <TestPage/> 
       </div>
     </div>
