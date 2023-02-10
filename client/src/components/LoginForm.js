@@ -3,7 +3,7 @@ import axios from 'axios';
 import {useJwt} from 'react-jwt';
 
 
-function TestPage() 
+function LoginForm() 
 {
     const [timeout, setTimeout] = useState();
     const [btnText, setText] = useState("Login");
@@ -168,4 +168,4 @@ function TestPage()
   )
 }
 
-export default TestPage
+export default LoginForm
