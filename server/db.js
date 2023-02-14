@@ -98,6 +98,16 @@ async function createTable(callback)
     });
 }
 
+function query(query, callback)
+{
+    con.query(query, (err, res) => {
+        if(err)
+            throw err;
+        
+        callback && callback(res, rows);
+    });
+}
+
 function dropTable() {
     let query = `DROP TABLE IF EXISTS users`;
     con.query(query, (err, res) => { 
@@ -114,14 +124,9 @@ function addUser(email, password, username, name, last_name, callback)
 {
     let query = `INSERT INTO users (email, password, username, name, last_name) VALUES ("${email}", "${password}", "${username}", "${name}", "${last_name}")`;
     con.execute(query, (err, res) => {
-        if(err)
-            console.error("Error adding user, ", err);
-        else
-        {
-            console.log("Added user: ", res);
-            if(callback)
-                callback();
-        }
+
+        if(callback)
+            callback(err, res);
     })
 }
 

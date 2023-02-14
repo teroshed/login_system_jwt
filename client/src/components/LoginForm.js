@@ -17,16 +17,9 @@ function LoginForm()
     useEffect(() => {
         let date = new Date();
         let date2 = new Date(date.getTime() + 10*1000);
-        // setCookie("testco", 120, 10);
-        // console.log("Date: ", date);
-        // console.log("Date: ", date2);
 
-        // document.cookie = "testcock=11;expires=" + date2.toUTCString() + ";";
-        // console.log("Date2: ", date2.toUTCString());
         if(first)
         {
-            // document.cookie = `testcookie=120;expires=${date2.toUTCString}`
-            console.log("GEt cookie: ", getCookie("test2"));
             setFirst(false);
             let token = getCookie("token");
             if(token != null)
@@ -39,7 +32,6 @@ function LoginForm()
             console.log("cookies:", document.cookie);
         }
 
-        // console.log("date ", (new Date()));
 
     });
 

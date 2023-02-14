@@ -3,28 +3,66 @@ import axios from 'axios';
 
 
 function RegisterForm() {
-  const [emailLabel, setEmailLabel] = useState("Email is already registered");
-  const [passwordLabel, setPasswordLabel] = useState(true);
+  const [emailLabel, setEmailLabel] = useState(false);
+  const [passwordLabel, setPasswordLabel] = useState(false);
   const [usernameLabel, setUsernameLabel] = useState(false);
 
   function registerBtn()
   {
-    let email = document.getElementById("email").value;
-    let password = document.getElementById("username").value;
-    let username = document.getElementById("password").value;
-    let name = document.getElementById("name").value;
-    let lastname = document.getElementById("lastname").value;
+    let email = document.getElementById("email");
+    let password = document.getElementById("password");
+    let username = document.getElementById("username");
+    let name = document.getElementById("name");
+    let lastname = document.getElementById("lastname");
 
-    if(email && password && username)
-    {
+    let cantEmpty = [
+      email,
+      password,
+      username
+    ];
+
+    cantEmpty.forEach(e => {
+      let empty = e.value.replaceAll(" ", "") == "";
+      if(empty)
+      {
+        e.classList.add("required");
+      }
+      else
+      {
+        e.classList.remove("required");
+      }
+    })
+    let emEmpty = email.value.replaceAll(" ", "") == "";
+    let passEmpty = password.value.replaceAll(" ", "") == "";
+    let usernameEmpty = username.value.replaceAll(" ", "") == "";
+    setEmailLabel(emEmpty);
+    setPasswordLabel(passEmpty);
+    setUsernameLabel(usernameEmpty);
+
     
+
+    if(email.value && password.value && username.value)
+    {
+      sendRegister(email.value, password.value, username.value, name.value, lastname.value);
     }
-    console.log(`register: email: ${email} password: ${password}, username: ${username}`);
+
+    console.log(`register: email: ${email.value} password: ${password.value}, username: ${username.value}`);
+  }
+
+  async function sendRegister(email, password, username, name, lastname)
+  {
+    let res = await axios.post("http://localhost:3001/register", { email, password, username, name, lastname})
+    console.log("Register res: ", res.data);
+    if(res.data.suceess)
+    {
+
+    }
   }
 
   function onEmailChange(e)
   {
     console.log(e.target.value);
+    
   }
 
   function onUsernameChange(e)
@@ -38,6 +76,7 @@ function RegisterForm() {
     console.log(e.target.value);
 
   }
+
   // on
   
   return (
@@ -46,7 +85,7 @@ function RegisterForm() {
         <h4> Register: </h4>
         <div className="">
           <input onChange={onEmailChange} type="text" id="email" className="form-control my-2" placeholder="E-mail"/>
-          {emailLabel && <label  className="form-label d-flex text-danger mx-2 "> {emailLabel} </label>}
+          {emailLabel && <label  className="form-label d-flex text-danger mx-2 "> E-mail can't be empty</label>}
         </div>
 
         <div className="">
@@ -55,8 +94,8 @@ function RegisterForm() {
         </div>
 
         <div className="">
-          <input onChange={onUsernameChange} id="username" type="text" className="form-control my-2" placeholder="Username"/>
-          {usernameLabel && <label className="form-label d-flex text-danger mx-2 ">Username can't be empty</label>}
+          <input onChange={onUsernameChange} id="username" type="text" className="form-control my-2 " placeholder="Username"/>
+          {usernameLabel && <label className="form-label d-flex text-danger mx-2">Username can't be empty</label>}
         </div> 
         
 

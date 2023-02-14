@@ -39,6 +39,22 @@ app.post("/login", (req, res) => {
     });
 });
 
+app.post("/register", (req, res) => {
+    console.log("Register: ", req.body);
+
+    db.addUser(req.body.email, req.body.password, req.body.username, req.body.name, req.body.lastname, (err, resp) => {
+        if(err)
+            res.send({success : false});
+        else 
+        {
+            res.send({success : true});
+
+        }
+    });
+    
+
+});
+
 app.post('/checklogin', (req, res) => {
     console.log('Checking');
     // res.send("hey");

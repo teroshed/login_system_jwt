@@ -17,3 +17,9 @@ html, body {
   font-size: 12px;
   font-weight: bold;
 }
+
+.required
+{
+  border: solid 2px red!important;
+  box-shadow: 0 0 !important;
+}

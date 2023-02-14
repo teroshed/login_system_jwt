@@ -3,16 +3,16 @@ import './App.css';
 import LoginForm from './components/LoginForm';
 import RegisterForm from './components/RegisterForm';
 
+import Home from './Pages/Home';
+
+
+
 function Client() {
 
   
   return (
     <div className="App">
-      <div className="window border col-8 mx-auto mt-4  bg-light">
-         
-        {/* <LoginForm/>  */}
-        <RegisterForm/>
-      </div>
+        <Home/>      
     </div>
   );
 }
