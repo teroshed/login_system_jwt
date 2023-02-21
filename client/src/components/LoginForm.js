@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import {useJwt} from 'react-jwt';
-
+import {verifyToken, logIn} from '../misc/loginUtils'
 
 function LoginForm() 
 {
@@ -95,6 +95,7 @@ function LoginForm()
     {
         let username = await document.getElementById('userinput').value;
         let password = await document.getElementById('passinput').value;
+        logIn({username, password})
         let res = await axios.post('http://localhost:3001/login', {username , password});
         res = res.data;
         console.log("Result: ", res);
