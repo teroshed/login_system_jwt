@@ -3,7 +3,7 @@ import './App.css';
 import LoginForm from './components/LoginForm';
 import RegisterForm from './components/RegisterForm';
 
-import Home from './Pages/Home';
+import Home from './pages/Home';
 
 
 

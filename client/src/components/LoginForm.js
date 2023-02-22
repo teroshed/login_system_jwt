@@ -2,6 +2,10 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import {useJwt} from 'react-jwt';
 import {verifyToken, logIn} from '../misc/loginUtils'
+import jwtDecode from 'jwt-decode';
+import cookies from '../misc/cookies.js';
+import { useNavigate } from 'react-router-dom';
+
 
 function LoginForm() 
 {
@@ -11,6 +15,8 @@ function LoginForm()
     const [logged, setLogged] = useState(false);
     const [first, setFirst] = useState(true);
     const [username, setUsername] = useState();
+    const navigate = useNavigate();
+
 
 
     var iteration = 0;
@@ -20,13 +26,21 @@ function LoginForm()
 
         if(first)
         {
+            // cookies.clearCookies();;
+            // cookies.setCookie("testCookie" + Math.random(), 123+Math.random()*10);
             setFirst(false);
-            let token = getCookie("token");
+            let token = cookies.getCookie("token");
             if(token != null)
             {
-                // checkLogged()
-                setLogged(true);
-                setStatus("Logged in");
+                verifyToken(ans => {
+                    if(ans.ok)
+                    {
+                        navigate("/");
+                    }
+
+                    
+                })
+                
             }
             
             console.log("cookies:", document.cookie);
@@ -46,7 +60,7 @@ function LoginForm()
     async function checkLogged(callback)
     {
 
-        let token = getCookie("token");
+        let token = cookies.getCookie("token");
         console.log("checklogged: '" + token + "'");
         if(!token)
         {
@@ -57,7 +71,7 @@ function LoginForm()
         console.log("answer of checklogged: ", ans.data);
         if(ans.data.username == false)
         {
-            setCookie("token", 1, -1);
+            cookies.setCookie("token", 1, -1);
             setStatus("Expired token");
         }
         else
@@ -66,36 +80,30 @@ function LoginForm()
         }
     }
 
-    function getCookie(key)
-    {
-        console.log("getting cookie: " + key);
-        let cookies = document.cookie;
-        let cookiesArr = cookies.split("; ");
-        for(const e of cookiesArr)
-        {
-            let cookie = e.split("=");
-            let ckey = cookie[0];
-            let value = cookie[1];
-            if(ckey == key)
-                return value;
-        }
-
-        return null;
-    }
-
-    function setCookie(key, value, expiresInSeconds)
-    {
-        let str =`${key}=${value};`;
-        if(expiresInSeconds)
-            str += `max-age=${expiresInSeconds}`;
-        document.cookie = str;
-    }
-
     async function logButton() 
     {
         let username = await document.getElementById('userinput').value;
         let password = await document.getElementById('passinput').value;
-        logIn({username, password})
+        logIn({username, password}, ans => {
+            console.log("Log ans: ", ans)
+            if(ans.success)
+            {
+                let decoded = jwtDecode(ans.token);
+                cookies.setCookie("token", ans.token);
+            }
+            else
+            {
+                setStatusClass("text-danger");
+                setStatus("Login and Password doesn't match");
+            }
+            // let decoded = jwtDecode(ans.token);
+            // let date1 = new Date();
+            // let date2 = new Date(decoded.exp);
+            // console.log("date1:", date1, ", date2:", date2);
+            // console.log("decoded: ", jwtDecode(ans.token));;
+
+        }) 
+        return;
         let res = await axios.post('http://localhost:3001/login', {username , password});
         res = res.data;
         console.log("Result: ", res);
@@ -103,7 +111,7 @@ function LoginForm()
         {
             setStatus("Logged in");
             setLogged(true);
-            setCookie("token", res.token, 1800);
+            cookies.setCookie("token", res.token, 1800);
             setStatusClass("text-success");
         }
         else
@@ -111,51 +119,29 @@ function LoginForm()
             setStatusClass("text-danger");
             setStatus("Wrong password or username ");
         }
-
-
     }
 
-    function logoutButton() {
-        // console.log("Logout")
-        setCookie("token", "1", -1);
-        setCookie("username", "1", -1);
-        setStatus("Logged out");
-        setLogged(false);
-        
-
-    }
 
     return (
     <div>
         <div className="p-4">
-            {
-                logged && 
-                <div className="border box">
-                    <h3> 
-                        Hey !
-                    </h3>
-                </div>
-            }
-            {
-                !logged && 
-                    <>
-                        <input type="text" id="userinput" className="form-control my-2" placeholder="username"/>
-                        <input type="text" id="passinput" className="form-control my-2" placeholder="password"/>
-                        <button type="button" onClick={logButton} className="btn btn-primary m-2"> {btnText} </button>
-                    </>
-            }
-            {
-                logged &&
-                    <>
-                        <button type="button" onClick={logoutButton} className="btn btn-primary m-2"> Log out </button>
-                        <button type="button" onClick={() => checkLogged()} className="btn btn-primary m-2"> check Logged</button>
-                    </>
-            }
-            
+
+        <label htmlFor="userinput" className="d-flex "> Username:</label>
+
+        <input tabIndex="1" type="text" id="userinput" className="form-control mb-2" placeholder="Username"/>
+        <label htmlFor="passinput" className="d-flex"> Password:</label>
+        <input tabIndex="2" type="text" id="passinput" className="form-control mb-2" placeholder="Password"/>
+        <div className="">
+            <a href="/register" className="link-primary float-end"> Register </a>
+
+            <button tabIndex="3" type="button" onClick={logButton} className="btn btn-primary  d-flex "> {btnText} </button>
 
         </div>
         
-        <div> Status: <span className="" id="status">{status} </span></div>
+
+        </div>
+        
+        <div><span className="" id="status">{status} </span></div>
     </div>
 
   )

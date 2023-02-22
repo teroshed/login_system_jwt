@@ -13,8 +13,12 @@ const cookieParser = require("cookie-parser");
 const app = express();
 
 
-function generateAccessToken(username) {
-    return jwt.sign({username}, secret, { expiresIn: "1800s" });
+function generateAccessToken(username, expireIn = 1800) {
+    
+    let exp = new Date().getTime() + expireIn*1000 ;
+    if(expireIn == 0)
+        exp = 0;
+    return jwt.sign({username, exp}, secret);
   }
 
 app.use(cors({origin: "http://localhost:3000"}))    ;
@@ -22,19 +26,17 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.post("/login", (req, res) => {
-    let ans;
-    console.log("cookies ?", req.cookies);
     // db.addUser("email@email.com", "pass", "dani", "daniel", "terosh");
     db.authUser(req.body.username, req.body.password, result => {
         console.log("Auth: ", result);
         if(result != null && result.length > 0)
         {
             let token = generateAccessToken(req.body.username);
-            res.send({success : true, token});
+            res.send({success: true, token});
         }
         else
         {
-            res.send({success : false});
+            res.send({success: false});
         }
     });
 });
@@ -55,29 +57,21 @@ app.post("/register", (req, res) => {
 
 });
 
-app.post('/checklogin', (req, res) => {
-    console.log('Checking');
-    // res.send("hey");
+app.post('/verifyToken', (req, res) => {
     let token = req.body.token; 
-    console.log("token: '" + token + "'");
-
-    // console.log("token", token);
     if(token == null)
     {
-        return  res.send({"success" : false});
-
+        return res.send({"success" : false});
     }
-    let payload;
     try
     {
-        payload = jwt.verify(token, secret);    
-        res.send({"sucess": true, "username": payload.username});
+        let payload = jwt.verify(token, secret);    
+        res.send({ok: true});
 
     } catch(e)
     {
         console.log(e.message);
-        console.log("error verifying token");
-        return res.send({"success" :false});
+        return res.send({ok: false});
 
     }
     // res.send("aha");

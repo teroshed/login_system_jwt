@@ -1,22 +1,28 @@
-function getCookie(key)
+export function getCookie(key)
 {
     let cookies = document.cookie;
-    if(key == null || key.replaceAll(" ", "") == "")
-        return document.cookie;
     let cookiesArr = cookies.split("; ");
+    let cookiesArrObject = [];
+
     for(const e of cookiesArr)
     {
         let cookie = e.split("=");
         let ckey = cookie[0];
         let value = cookie[1];
-        if(ckey == key)
-            return value;
+        cookiesArrObject.push({key: ckey, value});
+        
     }
+    if(key == null || key.replaceAll(" ", "") == "")
+            return cookiesArrObject;
+    let cookie = cookiesArrObject.find(cookie => cookie.key == key);
+    if(cookie)
+        return cookie.value;
+
 
     return null;
 }
 
-function setCookie(key, value, expiresInSeconds)
+export function setCookie(key, value, expiresInSeconds)
 {
     let str =`${key}=${value};`;
     if(expiresInSeconds)
@@ -24,6 +30,21 @@ function setCookie(key, value, expiresInSeconds)
     document.cookie = str;
 }
 
+export function clearCookies()
+{
+    
+    // deleteCookie("testcookie");
 
-module.exports.get = getCookie;
-module.exports.set = setCookie;
+    let cookies = getCookie();
+    cookies.forEach(cookie => {
+        deleteCookie(cookie.key);
+    })
+}
+
+export function deleteCookie(cookie)
+{
+    
+    document.cookie = cookie + "=a;max-age=0";
+}
+
+export default {getCookie, setCookie, clearCookies};
