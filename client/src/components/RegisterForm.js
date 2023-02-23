@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react'
 import axios from 'axios';
+import NavigationPanel from './NavigationPanel';
 
 
 function RegisterForm() {
@@ -80,8 +81,11 @@ function RegisterForm() {
   // on
   
   return (
-    <>
+    <div>
+            
+        <NavigationPanel/>
       <div className="p-4 border container "> 
+      
         <h4> Register: </h4>
         <div className="">
           <input onChange={onEmailChange} type="text" id="email" className="form-control my-2" placeholder="E-mail"/>
@@ -111,7 +115,7 @@ function RegisterForm() {
         <button type="button" onClick={registerBtn} className="btn btn-primary d-flex border shadow my-2">Register</button>
         
       </div>
-    </>
+    </div>
   )
 }
 

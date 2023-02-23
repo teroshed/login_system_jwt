@@ -5,7 +5,8 @@ import {verifyToken, logIn} from '../misc/loginUtils'
 import jwtDecode from 'jwt-decode';
 import cookies from '../misc/cookies.js';
 import { useNavigate } from 'react-router-dom';
-
+import {FiArrowLeft, FiHome} from 'react-icons/fi'
+import NavigationPanel from './NavigationPanel';
 
 function LoginForm() 
 {
@@ -124,10 +125,10 @@ function LoginForm()
 
     return (
     <div>
+        <NavigationPanel/>
         <div className="p-4">
-
+        
         <label htmlFor="userinput" className="d-flex "> Username:</label>
-
         <input tabIndex="1" type="text" id="userinput" className="form-control mb-2" placeholder="Username"/>
         <label htmlFor="passinput" className="d-flex"> Password:</label>
         <input tabIndex="2" type="text" id="passinput" className="form-control mb-2" placeholder="Password"/>
