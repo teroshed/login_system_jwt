@@ -1,15 +1,44 @@
 import React, {useState, useEffect} from 'react'
 import axios from 'axios';
 import NavigationPanel from './NavigationPanel';
-
+import {verifyToken, registerRequest} from '../misc/loginUtils'
+import cookies from '../misc/cookies.js';
+import { useNavigate } from 'react-router-dom';
 
 function RegisterForm() {
   const [emailLabel, setEmailLabel] = useState(false);
   const [passwordLabel, setPasswordLabel] = useState(false);
   const [usernameLabel, setUsernameLabel] = useState(false);
+  const [first, setFirst] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if(first)
+      {
+          // cookies.clearCookies();;
+          // cookies.setCookie("testCookie" + Math.random(), 123+Math.random()*10);
+          setFirst(false);
+          let token = cookies.getCookie("token");
+          if(token != null)
+          {
+              verifyToken(ans => {
+                  if(ans.ok)
+                  {
+                      navigate("/");
+                  }
+
+              })
+              
+          }
+          
+          console.log("cookies:", document.cookie);
+      }
+  })
 
   function registerBtn()
   {
+
+    
     let email = document.getElementById("email");
     let password = document.getElementById("password");
     let username = document.getElementById("username");
@@ -54,9 +83,13 @@ function RegisterForm() {
   {
     let res = await axios.post("http://localhost:3001/register", { email, password, username, name, lastname})
     console.log("Register res: ", res.data);
-    if(res.data.suceess)
+    if(res.data.ok)
     {
-
+      console.log("Registrated '' ");
+    }
+    else
+    {
+      console.log("error at registration ", res.data.message);
     }
   }
 
@@ -84,13 +117,15 @@ function RegisterForm() {
     <div>
             
         <NavigationPanel/>
-      <div className="p-4 border container "> 
+      <div className="p-4  "> 
       
         <h4> Register: </h4>
         <div className="">
-          <input onChange={onEmailChange} type="text" id="email" className="form-control my-2" placeholder="E-mail"/>
-          {emailLabel && <label  className="form-label d-flex text-danger mx-2 "> E-mail can't be empty</label>}
-        </div>
+          <input onChange={onUsernameChange} id="username" type="text" className="form-control my-2 " placeholder="Username"/>
+          {usernameLabel && <label className="form-label d-flex text-danger mx-2">Username can't be empty</label>}
+        </div> 
+
+        
 
         <div className="">
           <input onChange={onPasswordChange} type="text" id="password" className="form-control my-2" placeholder="Password"/> 
@@ -98,9 +133,9 @@ function RegisterForm() {
         </div>
 
         <div className="">
-          <input onChange={onUsernameChange} id="username" type="text" className="form-control my-2 " placeholder="Username"/>
-          {usernameLabel && <label className="form-label d-flex text-danger mx-2">Username can't be empty</label>}
-        </div> 
+          <input onChange={onEmailChange} type="text" id="email" className="form-control my-2" placeholder="E-mail"/>
+          {emailLabel && <label  className="form-label d-flex text-danger mx-2 "> E-mail can't be empty</label>}
+        </div>
         
 
         <div className="row ">

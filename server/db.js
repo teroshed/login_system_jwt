@@ -100,12 +100,7 @@ async function createTable(callback)
 
 function query(query, callback)
 {
-    con.query(query, (err, res) => {
-        if(err)
-            throw err;
-        
-        callback && callback(res, rows);
-    });
+    con.query(query, callback);
 }
 
 function dropTable() {
@@ -136,3 +131,5 @@ module.exports.getUsers = getUsers;
 module.exports.addUser = addUser;
 module.exports.dropTable = dropTable;
 module.exports.authUser = authUser;
+module.exports.query = query;
+

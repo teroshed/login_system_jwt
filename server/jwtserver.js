@@ -43,16 +43,40 @@ app.post("/login", (req, res) => {
 
 app.post("/register", (req, res) => {
     console.log("Register: ", req.body);
-
-    db.addUser(req.body.email, req.body.password, req.body.username, req.body.name, req.body.lastname, (err, resp) => {
+    const searchQuery = `SELECT * FROM users WHERE username = "${req.body.username}" OR email = "${req.body.email}"`;
+    db.query(searchQuery, (err,result) => {
+        console.log("here");
         if(err)
-            res.send({success : false});
-        else 
         {
-            res.send({success : true});
+            console.log("Error at checking on register for duplicates:", err);
+            return res.send({ok: false, code: 0, message: "Unknown error"})
 
         }
-    });
+        else 
+        {
+            if(result.length > 0)
+            {
+                console.log("Already exists user");
+                return res.send({ok: false, code: 1, message: "User with that username already exists"})
+            }
+            else
+            {
+                db.addUser(req.body.email, req.body.password, req.body.username, req.body.name, req.body.lastname, (err, resp) => {
+                    if(err)
+                        res.send({ok : false});
+                    else 
+                    {
+                        res.send({ok : true});
+
+                    }
+                });
+                return res.send({ok: true})
+            }
+        }
+    })
+
+
+    
     
 
 });

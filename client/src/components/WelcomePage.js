@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react'
-import {getCookie, setCookie } from '../misc/cookies';
+import cookies from '../misc/cookies';
 import jwt_decode from "jwt-decode";
 
 import { useNavigate } from 'react-router-dom';
@@ -11,12 +11,12 @@ function WelcomePage() {
   const [logged, setLogged] = useState(false);
   const navigate = useNavigate();
 
-  
 
     useEffect(() => {   
       if(first)
       {
-        let token = getCookie('token');
+        
+        let token = cookies.getCookie('token');
         console.log("Token:", token);
         if(token != null)
         {
@@ -36,6 +36,12 @@ function WelcomePage() {
       navigate("/register");
     }
 
+    const logOutButton = () => 
+    {
+      cookies.deleteCookie('token');
+      setLogged(false);
+      setText("Welcome, guest");
+    }
 
   return (
     <div>
@@ -57,7 +63,7 @@ function WelcomePage() {
           {
           logged &&
             <>
-              <button type="button" className="btn btn-primary m-2 col-8 mx-auto">Log out</button>
+              <button onClick={logOutButton} type="button" className="btn btn-primary m-2 col-8 mx-auto">Log out</button>
             </>
           }
           

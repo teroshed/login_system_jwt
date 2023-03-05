@@ -8,6 +8,8 @@ import { useNavigate } from 'react-router-dom';
 import {FiArrowLeft, FiHome} from 'react-icons/fi'
 import NavigationPanel from './NavigationPanel';
 
+
+
 function LoginForm() 
 {
     const [timeout, setTimeout] = useState();
@@ -39,7 +41,6 @@ function LoginForm()
                         navigate("/");
                     }
 
-                    
                 })
                 
             }
@@ -91,6 +92,7 @@ function LoginForm()
             {
                 let decoded = jwtDecode(ans.token);
                 cookies.setCookie("token", ans.token);
+                navigate("/");
             }
             else
             {

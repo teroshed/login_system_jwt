@@ -47,4 +47,4 @@ export function deleteCookie(cookie)
     document.cookie = cookie + "=a;max-age=0";
 }
 
-export default {getCookie, setCookie, clearCookies};
+export default {getCookie, setCookie, clearCookies, deleteCookie};
