@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react'
 import cookies from '../misc/cookies';
 import jwt_decode from "jwt-decode";
+import { verifyToken } from '../misc/loginUtils';
 
 import { useNavigate } from 'react-router-dom';
 
@@ -15,15 +16,32 @@ function WelcomePage() {
     useEffect(() => {   
       if(first)
       {
+        console.log("cookies: ", document.cookie);
         
         let token = cookies.getCookie('token');
         console.log("Token:", token);
         if(token != null)
         {
           let decoded = jwt_decode(token);
-          setText("Welcome, " + decoded.username);
-          setLogged(true);
+          verifyToken(e => {
+            if(e.ok)
+            {
+              let decoded = jwt_decode(token);
+              if(decoded.exp < new Date().getTime())
+              {
+                console.log("Expired token");
+              }
+              setText("Welcome, " + decoded.username);
+              setLogged(true);
+            }
+            else
+            {
+              console.log("Failed verify:", e);
+            }
+          });
+          
         }
+        // first = false;
       }
         // console.log("Cookies: ", );
     })

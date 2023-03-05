@@ -22,11 +22,11 @@ export function getCookie(key)
     return null;
 }
 
-export function setCookie(key, value, expiresInSeconds)
+export function setCookie(key, value, expire)
 {
     let str =`${key}=${value};`;
-    if(expiresInSeconds)
-        str += `max-age=${expiresInSeconds}`;
+    if(expire)
+        str += `expires=${expire}`;
     document.cookie = str;
 }
 

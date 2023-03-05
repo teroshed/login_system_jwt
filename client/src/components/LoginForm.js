@@ -31,6 +31,7 @@ function LoginForm()
         {
             // cookies.clearCookies();;
             // cookies.setCookie("testCookie" + Math.random(), 123+Math.random()*10);
+
             setFirst(false);
             let token = cookies.getCookie("token");
             if(token != null)
@@ -91,13 +92,20 @@ function LoginForm()
             if(ans.success)
             {
                 let decoded = jwtDecode(ans.token);
-                cookies.setCookie("token", ans.token);
+                console.log("decoded:", decoded);
+                console.log("Time now:", Date.now());
+                cookies.setCookie("token", ans.token, decoded.exp);
+                
                 navigate("/");
             }
             else
             {
                 setStatusClass("text-danger");
-                setStatus("Login and Password doesn't match");
+
+                if(ans.code == 404)
+                    setStatus("Server error");
+                else if(ans.code == 401)
+                    setStatus("Login and Password doesn't match");
             }
             // let decoded = jwtDecode(ans.token);
             // let date1 = new Date();

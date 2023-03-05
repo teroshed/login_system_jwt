@@ -27,17 +27,27 @@ app.use(cookieParser());
 
 app.post("/login", (req, res) => {
     // db.addUser("email@email.com", "pass", "dani", "daniel", "terosh");
+
     db.authUser(req.body.username, req.body.password, result => {
         console.log("Auth: ", result);
-        if(result != null && result.length > 0)
+        if(result.ok)
         {
-            let token = generateAccessToken(req.body.username);
-            res.send({success: true, token});
+            if(result.data != null && result.data.length > 0)
+            {
+                let token = generateAccessToken(req.body.username);
+                res.send({success: true, token});
+            }
+            else
+            {
+                res.send({success: false, code: 401, message: "Login and password don't match"});
+            }
         }
         else
         {
-            res.send({success: false});
+            console.log("")
+            res.send(result);
         }
+
     });
 });
 
@@ -89,7 +99,11 @@ app.post('/verifyToken', (req, res) => {
     }
     try
     {
-        let payload = jwt.verify(token, secret);    
+        let payload = jwt.verify(token, secret);   
+        if(payload.exp < Date.now()) 
+        {
+            return res.send({ok: false, code: 401, message: "Expired Token"});
+        }
         res.send({ok: true});
 
     } catch(e)

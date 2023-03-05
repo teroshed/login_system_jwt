@@ -42,16 +42,18 @@ function setDatabase() {
 
 function authUser(login, password, callback)
 {
+    // console.log(con);
     let query = `SELECT id, username, name, last_name FROM users WHERE (email = '${login}' OR username = '${login}') AND (password = '${password}')`;
     con.query(query, (err, result) => {
         if(err)
         {
             console.log("error auth: " + err.message);
+            result = {success: false, code: 404, message: "Error connecting to database"};
         }
-        else
-        {
-            callback && callback(result);
-        }
+        // else
+        // {
+            callback && callback({ok: true, data: result});
+        // }
     });
 }
 
