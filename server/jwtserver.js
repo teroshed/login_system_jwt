@@ -54,6 +54,7 @@ app.post("/login", (req, res) => {
 app.post("/register", (req, res) => {
     console.log("Register: ", req.body);
     const searchQuery = `SELECT * FROM users WHERE username = "${req.body.username}" OR email = "${req.body.email}"`;
+    console.log("Query: ", searchQuery);
     db.query(searchQuery, (err,result) => {
         console.log("here");
         if(err)
@@ -66,8 +67,9 @@ app.post("/register", (req, res) => {
         {
             if(result.length > 0)
             {
+                console.log("Result: ", result);
                 console.log("Already exists user");
-                return res.send({ok: false, code: 1, message: "User with that username already exists"})
+                return res.send({ok: false, code: 1, message: "User with that username or email already exists"})
             }
             else
             {
@@ -76,11 +78,12 @@ app.post("/register", (req, res) => {
                         res.send({ok : false});
                     else 
                     {
+                        console.log("Register: ", req.body);
                         res.send({ok : true});
 
                     }
                 });
-                return res.send({ok: true})
+                // return res.send({ok: true})
             }
         }
     })

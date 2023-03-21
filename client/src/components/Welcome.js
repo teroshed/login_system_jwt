@@ -63,6 +63,7 @@ function WelcomePage() {
 
   return (
     <div>
+      
       <h3 className="mx-auto"> {text} </h3>
       <div className="container row">
           {

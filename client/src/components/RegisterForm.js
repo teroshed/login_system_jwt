@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react'
 import axios from 'axios';
-import NavigationPanel from './NavigationPanel';
+import FormNavigation from './FormNavigation';
 import {verifyToken, registerRequest} from '../misc/loginUtils'
 import cookies from '../misc/cookies.js';
 import { useNavigate } from 'react-router-dom';
@@ -116,7 +116,7 @@ function RegisterForm() {
   return (
     <div>
             
-        <NavigationPanel/>
+      <FormNavigation/>
       <div className="p-4  "> 
       
         <h4> Register: </h4>

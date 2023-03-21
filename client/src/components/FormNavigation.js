@@ -2,7 +2,7 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom';
 import {FiArrowLeft, FiHome} from 'react-icons/fi'
 
-function NavigationPanel() {
+function FormNavigation() {
     const navigate = useNavigate();
 
   return (
@@ -21,4 +21,4 @@ function NavigationPanel() {
   )
 }
 
-export default NavigationPanel
+export default FormNavigation
