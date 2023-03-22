@@ -4,6 +4,7 @@ import jwt_decode from "jwt-decode";
 import { verifyToken } from '../misc/loginUtils';
 
 import { useNavigate } from 'react-router-dom';
+import FormWrapper from './FormWrapper';
 
 var first = true;
 function WelcomePage() {
@@ -62,7 +63,7 @@ function WelcomePage() {
     }
 
   return (
-    <div>
+    <FormWrapper>
       
       <h3 className="mx-auto"> {text} </h3>
       <div className="container row">
@@ -89,7 +90,7 @@ function WelcomePage() {
 
 
       </div>
-    </div>
+    </FormWrapper>
   )
 }
 

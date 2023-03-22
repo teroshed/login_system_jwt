@@ -6,6 +6,7 @@ import jwtDecode from 'jwt-decode';
 import cookies from '../misc/cookies.js';
 import { useNavigate } from 'react-router-dom';
 import FormNavigation from './FormNavigation';
+import FormWrapper from './FormWrapper';
 
 
 
@@ -133,8 +134,8 @@ function LoginForm()
 
 
     return (
-    <div>
-        <FormNavigation/>
+    <FormWrapper>
+    
         <div className="p-4">
         
         <label htmlFor="userinput" className="d-flex "> Username:</label>
@@ -152,7 +153,7 @@ function LoginForm()
         </div>
         
         <div><span className="" id="status">{status} </span></div>
-    </div>
+    </FormWrapper>
 
   )
 }

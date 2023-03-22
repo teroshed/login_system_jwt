@@ -1,0 +1,67 @@
+#navbar
+{
+    position: fixed;
+    display: flex;
+    height: 50px;
+    width: 100%;
+    background-color: #9381FF;
+}
+
+.navbutton
+{
+    height: 100%;
+    background-color: #b8b8ff;
+    border: none;
+    transition: 0.3s;
+}
+
+.navbutton:hover
+{
+    color: #f8f7ff;
+    background-color: #5b46d3;
+
+}
+
+.navbar-right 
+{
+    /* align-items: flex-end;
+    display: flex; */
+}
+
+/* .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #a02b2b;
+    padding: 0.5rem 1rem;
+  }
+  
+  .navbar-left,
+  .navbar-right {
+    display: flex;
+    align-items: center;
+  }
+  
+  .navbar-title,
+  .navbar-link {
+    color: white;
+    text-decoration: none;
+    margin-right: 1rem;
+  }
+  
+  .navbar-link:hover {
+    text-decoration: underline;
+  }
+  
+  .login-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+  }
+  
+  .login-button:hover {
+    background-color: #0056b3;
+  }
+   */

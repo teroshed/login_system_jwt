@@ -4,6 +4,7 @@ import FormNavigation from './FormNavigation';
 import {verifyToken, registerRequest} from '../misc/loginUtils'
 import cookies from '../misc/cookies.js';
 import { useNavigate } from 'react-router-dom';
+import FormWrapper from './FormWrapper';
 
 function RegisterForm() {
   const [emailLabel, setEmailLabel] = useState(false);
@@ -114,9 +115,8 @@ function RegisterForm() {
   // on
   
   return (
-    <div>
+    <FormWrapper>
             
-      <FormNavigation/>
       <div className="p-4  "> 
       
         <h4> Register: </h4>
@@ -150,7 +150,7 @@ function RegisterForm() {
         <button type="button" onClick={registerBtn} className="btn btn-primary d-flex border shadow my-2">Register</button>
         
       </div>
-    </div>
+    </FormWrapper>
   )
 }
 
