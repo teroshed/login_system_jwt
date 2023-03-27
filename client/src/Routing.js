@@ -15,6 +15,7 @@ import {configureStore} from "@reduxjs/toolkit";
 import {Provider} from 'react-redux'
 import { element } from 'prop-types';
 import MainContainer from './pages/MainContainer';
+import AddVacation from './pages/AddVacation';
 
   
 const router = createBrowserRouter([
@@ -29,11 +30,15 @@ const router = createBrowserRouter([
     {
       path: "/vacations",
       element: <VacationsPage/>
+      
+    },
+    {
+        path: "/addvacation",
+        element: <AddVacation/>
     },
     {
         path: "/",
-        element: <MainContainer/>,
-        
+        element: <MainContainer/>
     }
 
   ]);

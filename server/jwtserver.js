@@ -24,6 +24,8 @@ function generateAccessToken(username, expireIn = 1800) {
 app.use(cors({origin: "http://localhost:3000"}))    ;
 app.use(express.json());
 app.use(cookieParser());
+app.use(express.static('public'))
+
 
 app.post("/login", (req, res) => {
     // db.addUser("email@email.com", "pass", "dani", "daniel", "terosh");
@@ -93,6 +95,8 @@ app.post("/register", (req, res) => {
     
 
 });
+
+
 
 app.post('/verifyToken', (req, res) => {
     let token = req.body.token; 

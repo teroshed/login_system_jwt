@@ -1,4 +1,6 @@
 import React, {useEffect, useState} from 'react'
+import NavigationBar from '../components/NavigationBar';
+import "../styles/Vacations.css";
 
 function VacationsPage() {
 
@@ -9,7 +11,7 @@ function VacationsPage() {
             startDate: new Date(2023, 5, 15),
             endDate: new Date(2023, 6, 15),
             price: 100,
-            image: "romeimage.png"
+            image: "rome.jpg"
         },
         {
             title: "Italy",
@@ -17,7 +19,7 @@ function VacationsPage() {
             startDate: new Date(2023, 5, 15),
             endDate: new Date(2023, 6, 15),
             price: 200,
-            image: "italyimage.png"
+            image: "italy.jpg"
         },
         {
             title: "Italy",
@@ -25,7 +27,7 @@ function VacationsPage() {
             startDate: new Date(2023, 5, 15),
             endDate: new Date(2023, 6, 15),
             price: 200,
-            image: "italyimage.png"
+            image: "italy.jpg"
         },
         {
             title: "Italy",
@@ -33,7 +35,7 @@ function VacationsPage() {
             startDate: new Date(2023, 5, 15),
             endDate: new Date(2023, 6, 15),
             price: 200,
-            image: "italyimage.png"
+            image: "italy.jpg"
         },
         {
             title: "Italy",
@@ -41,7 +43,7 @@ function VacationsPage() {
             startDate: new Date(2023, 5, 15),
             endDate: new Date(2023, 6, 15),
             price: 200,
-            image: "italyimage.png"
+            image: "italy.jpg"
         }
     ])
     var first = true;
@@ -57,20 +59,41 @@ function VacationsPage() {
     // })
     
   return (
-    <div className='center'>
+    <>
+
+    <div className='center my-4'>
+      
+        
         <h3> Vacations </h3>
-        <div className='row col-10 mx-auto container p-2 bg-light '>
-            <div className='row '>
-                {vacations.map(vac => 
-                    <div className="card col-3  ">
-                        <h4> {vac.title} </h4>
+        <div className=' mx-auto container p-2 bg-light '>
+            <div className='row p-2'>
+                {
+                vacations.map((vac, index) => 
+                {
+                    return (
+                    <div key={"vac" + index}  className="col-3 g-2">
+                        <div className="card ">
+                            <h4> {vac.title} </h4>
+                            <div>
+                                <div className='containe '>
+                                    <img className='col-12 vacimage' src={"http://localhost:3001/images/" + vac.image}/> 
+
+                                </div>
+                                <p> {vac.description} </p>
+                            </div>
+                        </div>
                     </div>
+                );
+                }
+                   
                 )}
             </div>
             
         </div>
         
     </div>
+    </>
+
   )
 }
 
