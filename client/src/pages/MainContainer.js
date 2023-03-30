@@ -14,10 +14,11 @@ import VacationsPage from './VacationsPage';
 import {configureStore} from "@reduxjs/toolkit";
 import {Provider} from 'react-redux'
 import { element } from 'prop-types';
+import { Outlet } from "react-router-dom";
 
 
 
-function MainContainer() {
+function MainContainer(props) {
     useEffect(() => {
         console.log('home')
     });
@@ -26,7 +27,7 @@ function MainContainer() {
     <div className="app">
     
       <NavigationBar/>
-      
+      <Outlet/>
     </div>
   )
 }

@@ -4,6 +4,9 @@
 
 html, body {
   height: 100%;
+  background-color: ghostwhite;
+  
+  margin: 0;
 }
 
 .window
@@ -22,4 +25,20 @@ html, body {
 {
   border: solid 2px red!important;
   box-shadow: 0 0 !important;
+}
+
+.app
+{
+  /* overflow: scroll; */
+}
+
+.modal
+{
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: rgba(40, 40, 20, 0.4);
+  width: 100%;
+  height: 100%;
+  z-index: 10;
 }

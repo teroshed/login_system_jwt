@@ -23,8 +23,8 @@ function NavigationBar() {
                 <button type="button" className=" col-2 navbutton"> About </button>
             </div>
             
-            <div className="navbar-right float-end">
-                <div  className='float-end'> 123 </div>
+            <div className="navbar-right d-flex float-end">
+                <button type="button" className="navbutton"> tf </button>
             </div>
         </nav>
     )

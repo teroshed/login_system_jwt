@@ -1,11 +1,68 @@
 .card
 {
-    box-shadow: -1px 2px 10px 1px rgba(0,0,0,0.4)
-
+    box-shadow: -1px 2px 10px 1px rgba(0,0,0,0.4);
+    cursor: pointer;
 }
 
 .vacimage
 {
     border-top-right-radius: 5px;
     border-top-left-radius: 5px;
+}
+
+.vacations-cont 
+{
+    width: 90%;
+
+}
+
+.vacbody
+{
+    background-color: #b8b8ff;
+    height: 100%;
+    background-image: linear-gradient(#b8b8ff, #9381ff);
+    
+
+}
+
+.vacheader
+{
+    /* background-color: #9381ff; */
+}
+
+.vacation-bar
+{
+    width: 100%;
+    height: 30px;
+    background-color: #9381ff;
+    
+}
+
+.vacpage
+{
+    margin-top: 50px;
+}
+.right
+{
+    
+}
+
+.modal
+{
+    z-index: 1100;
+    /* text-align; */
+}
+
+.modalHeader
+{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.modal-buttons
+{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }

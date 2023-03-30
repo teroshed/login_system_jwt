@@ -28,7 +28,7 @@ const router = createBrowserRouter([
       element: <RegisterForm/>,
     },
     {
-      path: "/vacations",
+      path: "/vacatis",
       element: <VacationsPage/>
       
     },
@@ -38,7 +38,17 @@ const router = createBrowserRouter([
     },
     {
         path: "/",
-        element: <MainContainer/>
+        element: <MainContainer/>,
+        children: [
+          {
+            path: "vacations",
+            element: <VacationsPage/>
+          },
+          {
+            path: "test",
+            element: <div> test div</div>
+          }
+        ]
     }
 
   ]);
@@ -49,7 +59,7 @@ function Routing() {
     });
     
   return (
-    <div className="app">
+    <div className="routing">
     
       {/* <NavigationBar/> */}
       
