@@ -3,8 +3,11 @@ import React, {useEffect, useState} from 'react'
 import NavigationBar from '../components/NavigationBar';
 import "../styles/Vacations.css";
 import Modal from 'react-bootstrap/Modal';
+import axios from 'axios';
 
 function VacationsPage() {
+
+    const url = "http://localhost:3001";
 
     const [vacations, setVacations] = useState([
         {
@@ -21,7 +24,15 @@ function VacationsPage() {
             startDate: new Date(2023, 5, 15),
             endDate: new Date(2023, 6, 15),
             price: 200,
-            image: "italy.jpg"
+            image: "italy.jpeg"
+        },
+        {
+            title: "not italy",
+            description: "Lorem ipsum dolor sit amet, consectetur adip",
+            startDate: new Date(2023, 5, 15),
+            endDate: new Date(2023, 6, 15),
+            price: 200,
+            image: "italy.jpeg"
         },
         {
             title: "Italy",
@@ -29,7 +40,7 @@ function VacationsPage() {
             startDate: new Date(2023, 5, 15),
             endDate: new Date(2023, 6, 15),
             price: 200,
-            image: "italy.jpg"
+            image: "italy.jpeg"
         },
         {
             title: "Italy",
@@ -37,7 +48,7 @@ function VacationsPage() {
             startDate: new Date(2023, 5, 15),
             endDate: new Date(2023, 6, 15),
             price: 200,
-            image: "italy.jpg"
+            image: "italy.jpeg"
         },
         {
             title: "Italy",
@@ -45,7 +56,7 @@ function VacationsPage() {
             startDate: new Date(2023, 5, 15),
             endDate: new Date(2023, 6, 15),
             price: 200,
-            image: "italy.jpg"
+            image: "italy.jpeg"
         },
         {
             title: "Italy",
@@ -53,7 +64,15 @@ function VacationsPage() {
             startDate: new Date(2023, 5, 15),
             endDate: new Date(2023, 6, 15),
             price: 200,
-            image: "italy.jpg"
+            image: "italy.jpeg"
+        },
+        {
+            title: "Italy",
+            description: "Lorem  ipsum dolor sit amet, consectetur adip",
+            startDate: new Date(2023, 5, 15),
+            endDate: new Date(2023, 6, 15),
+            price: 200,
+            image: "italy.jpeg"
         },
         {
             title: "Italy",
@@ -61,7 +80,7 @@ function VacationsPage() {
             startDate: new Date(2023, 5, 15),
             endDate: new Date(2023, 6, 15),
             price: 200,
-            image: "italy.jpg"
+            image: "italy.jpeg"
         },
         {
             title: "Italy",
@@ -69,7 +88,7 @@ function VacationsPage() {
             startDate: new Date(2023, 5, 15),
             endDate: new Date(2023, 6, 15),
             price: 200,
-            image: "italy.jpg"
+            image: "italy.jpeg"
         },
         {
             title: "Italy",
@@ -77,23 +96,7 @@ function VacationsPage() {
             startDate: new Date(2023, 5, 15),
             endDate: new Date(2023, 6, 15),
             price: 200,
-            image: "italy.jpg"
-        },
-        {
-            title: "Italy",
-            description: "Lorem ipsum dolor sit amet, consectetur adip",
-            startDate: new Date(2023, 5, 15),
-            endDate: new Date(2023, 6, 15),
-            price: 200,
-            image: "italy.jpg"
-        },
-        {
-            title: "Italy",
-            description: "Lorem ipsum dolor sit amet, consectetur adip",
-            startDate: new Date(2023, 5, 15),
-            endDate: new Date(2023, 6, 15),
-            price: 200,
-            image: "italy.jpg"
+            image: "italy.jpeg"
         }
     ])
 
@@ -114,7 +117,22 @@ function VacationsPage() {
     function addVacationButton(e) { 
         console.log("Hey")
         setModal(true);
-
+    }
+    
+    async function submitVacationForm(e)
+    {
+        e.preventDefault();
+        // console.log(e.target[4].files[0]);w
+        console.log("Submit: ", e);
+        let json = {name: e.target[0].value, description: e.target[1].value, startDate: e.target[2].value, endDate: e.target[3].value, price: e.target[4].value,  image: e.target[5].files[0]};
+        console.log("JSOn: ", json);
+        let a = await axios.post(url + "/addVacation", json, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+        console.log(a)
+        
     }
     
   return (
@@ -133,10 +151,10 @@ function VacationsPage() {
                 </Modal.Header>
 
                 <Modal.Body>
-                    <form>
+                    <form onSubmit={submitVacationForm}>
                         <div className='form-group my-2'>
                             <label htmlFor="vacName"> Vacation name</label>
-                            <input type="text" id="vacName" placeholder='Vacation name' className='form-control '/> 
+                            <input type="text" id="vacName" placeholder='Vacation name' className='form-control' required/> 
                         </div>
                         <div className='form-group my-2'>
                             <label htmlFor="vacDescription"> Description</label>
@@ -151,12 +169,16 @@ function VacationsPage() {
                             <input type="date" id="vacEndDate" placeholder='Vacation name' className='form-control '/> 
                         </div>
                         <div className='form-group my-2'>
+                            <label htmlFor="vacPrice"> Price</label>
+                            <input type="text" id="vacPrice" placeholder='Price' className='form-control'/> 
+                        </div>
+                        <div className='form-group my-2'>
                             <label htmlFor="vacImage"> Vacation image</label>
                             <input type="file" accept="image/*" id="vacImage" placeholder='Vacation name' className='form-control '/> 
                         </div>
                         <div className="modal-buttons">
                             <button type="submit" className='btn btn-primary'> Add</button>
-                            <button type="submit" className='btn btn-secondary'> Cancel</button>
+                            <button type="button" className='btn btn-secondary'> Cancel</button>
                             
                         </div>
                     </form>
@@ -193,6 +215,14 @@ function VacationsPage() {
 
                                     </div>
                                     <p> {vac.description} </p>
+                                    <div className='row'> 
+                                        <p className="mt-0 col ">Price: ${vac.price}</p>
+
+                                    </div>
+                                    <div className='d-flex row px-4 '>
+                                        <button type="button" className="btn btn-primary shadow mb-2 text-align-start col-3"> Order</button>
+                                    </div>
+                                    
                                 </div>
                             </div>
                         </div>

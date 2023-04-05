@@ -1,16 +1,27 @@
 const express = require("express");
 const cors = require("cors");
-const db = require("./db.js");  
-const expressjwt = require("express-jwt");
 const jwt = require("jsonwebtoken");
-const secret = "secretsecretsecretsecret"
+const multer = require("multer");
+var path = require('path')
+
+// const upload = multer({dest: '/images'});
+const expressjwt = require("express-jwt");
+// var busboy = require('connect-busboy'); 
 const cookieParser = require("cookie-parser");
+
+
+const db = require("./db.js");  
+const secret = "secretsecretsecretsecret"
 
 
 // or ES6
 
 // import { expressjwt, ExpressJwtRequest } from "express-jwt";
 const app = express();
+app.use(cors({origin: "http://localhost:3000"}))    ;
+app.use(express.json());
+app.use(cookieParser());
+app.use(express.static('public'))
 
 
 function generateAccessToken(username, expireIn = 1800) {
@@ -20,12 +31,6 @@ function generateAccessToken(username, expireIn = 1800) {
         exp = 0;
     return jwt.sign({username, exp}, secret);
   }
-
-app.use(cors({origin: "http://localhost:3000"}))    ;
-app.use(express.json());
-app.use(cookieParser());
-app.use(express.static('public'))
-
 
 app.post("/login", (req, res) => {
     // db.addUser("email@email.com", "pass", "dani", "daniel", "terosh");
@@ -96,6 +101,49 @@ app.post("/register", (req, res) => {
 
 });
 
+
+var storage = multer.diskStorage({
+
+    destination: async function (req, file, cb) {
+        // let ans = db.
+        
+
+        cb(null, 'public/images/')
+    },
+    filename: function (req, file, cb) {
+        db.addVacation(
+            req.body.name,
+            req.body.description,
+            req.body.startDate, 
+            req.body.endDate, 
+            req.body.price, 
+            (imageName) => { 
+                cb(null, imageName + path.extname(file.originalname)) //Appending extension
+
+            });
+    }
+  })
+  
+  var upload = multer({ storage: storage });
+
+
+app.post('/addVacation', upload.single('image'), (req, res) => {
+    console.log("addVacation..................")
+    // let a = db.getLastID();
+    // let a = db.addVacation(
+    //     req.body.name,
+    //     req.body.description,
+    //     req.body.startDate, 
+    //     req.body.endDate, 
+    //     req.body.price, 
+    //     (err, res) => { 
+
+    //     });
+
+    console.log("files: ", req.file);
+    console.log("Req: ", req.body);
+    res.send({ok: true});
+});
 
 
 app.post('/verifyToken', (req, res) => {
