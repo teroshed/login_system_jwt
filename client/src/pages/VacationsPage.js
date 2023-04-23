@@ -140,10 +140,13 @@ function VacationsPage() {
         fields.price = e.target[4];
         fields.image = e.target[5];
 
+        
+        // setWarnings(() => {});
+        // console.log("Set warnings: ", warnings)
         for(const field of e.target)
         {
             field.classList.remove("red-input");
-            setWarnings({});
+
         }
         if(validateForm(fields))
         {
@@ -171,22 +174,72 @@ function VacationsPage() {
 
     function validateForm(fields)
     {
-        console.log("Warnings: ", warnings);
-        console.log("Validate form:", fields);
-        //Name
-        if(fields.name.value.replaceAll(" ", "") == "")
+        // console.log("Validate form:", fields);
+        let flag = true;
+        let tempWarnings = {};
+        if(fields.name.value.length > 15 || fields.name.value.replaceAll(" ", "").length < 3)
         {
-            setWarnings({...warnings, nameWarning: "Name can't be empty"});
+            tempWarnings = {...tempWarnings, nameWarning: "Name must be between 3 and 15 characters"};
             fields.name.classList.add("red-input");
-            return false;
+            flag = false;
         }
-        if(fields.name.value.length < 15)
+        if(!fields.description.value.replaceAll(" ", ""))
         {
-            setWarnings({...warnings, nameWarning: "Name must be between 3 and 15 characters"});
-            fields.name.classList.add("red-input");
-            return false;
-
+            tempWarnings = {...tempWarnings, descriptionWarning: "Description can't be empty"};
+            fields.description.classList.add("red-input");
+            flag = false;
         }
+        if(!fields.startDate.value)
+        {
+            tempWarnings = {...tempWarnings, startDateWarning: "Start date cant be empty"};
+            fields.startDate.classList.add("red-input");
+            flag = false;
+        }
+        if(!fields.endDate.value)
+        {
+            tempWarnings = {...tempWarnings, endDateWarning: "End date cant be empty"};
+            fields.endDate.classList.add("red-input");
+            flag = false;
+        }
+        if(!fields.price.value)
+        {
+            tempWarnings = {...tempWarnings, priceWarning: "Please enter a price"};
+            fields.price.classList.add("red-input");
+            flag = false;
+        }
+        if(!fields.image.value)
+        {
+            tempWarnings = {...tempWarnings, imageWarning: "Please upload an image"};
+            fields.image.classList.add("red-input");
+            flag = false;
+        }
+        
+        let pickedStartDate = new Date(fields.startDate.value); 
+        let pickedEndDate = new Date(fields.endDate.value);
+        let today = new Date();
+        today.setHours(0, 0, 0, 0); 
+        if(pickedStartDate < today)
+        {
+            tempWarnings = {...tempWarnings, startDateWarning: "Start date can't be in the past"};
+            fields.startDate.classList.add("red-input");
+            flag = false;
+        }
+        if(pickedEndDate < pickedStartDate) 
+        {
+            tempWarnings = {...tempWarnings, endDateWarning: "End date can't be before start date"};
+            fields.endDate.classList.add("red-input");
+            flag = false;
+        }
+        if(fields.endDate.value && !fields.startDate.value)      
+        {
+            tempWarnings = {...tempWarnings, endDateWarning: "Please choose a start date"};
+            fields.endDate.classList.add("red-input");
+            flag = false;
+        }
+        setWarnings(tempWarnings);
+        console.log("Warnings at end: ", warnings)
+        // console.log("start date: ", new Date(fields.startDate.value));
+        return false;
     }
     
     function sortChange(e)
@@ -231,31 +284,32 @@ function VacationsPage() {
                         <div className='form-group my-2'>
                             <label htmlFor="vacDescription"> Description</label>
                             <input type="text" id="vacDescription" placeholder='Description' className='form-control'/>
-                            <label id="vacDescriptionWarning" htmlFor="vacName" className='text-danger text-bold '>Description is required</label>
+                            {warnings.descriptionWarning && <label id="vacDescriptionWarning" htmlFor="vacDescription" className='text-danger text-bold '>{warnings.descriptionWarning} </label>}
 
                         </div>
                         <div className='form-group my-2'>
                             <label htmlFor="vacStartDate"> Start date</label>
                             <input type="date" id="vacStartDate"  className='form-control '/> 
-                            <label id="vacStartDateWarning" htmlFor="vacName" className='text-danger text-bold '>Start date is required</label>
+                            {warnings.startDateWarning && <label id="vacStartDateWarning" htmlFor="vacStartDate" className='text-danger text-bold '>{warnings.startDateWarning} </label>}
+
 
                         </div>
                         <div className='form-group my-2'>
                             <label htmlFor="vacEndDate"> End date</label>
                             <input type="date" id="vacEndDate" placeholder='Vacation name' className='form-control '/> 
-                            <label id="vacStartDateWarning" htmlFor="vacName" className='text-danger text-bold '>End date is required</label>
+                            {warnings.endDateWarning && <label id="vacEndDateWarning" htmlFor="vacEndDate" className='text-danger text-bold '>{warnings.endDateWarning} </label>}
 
                         </div>
                         <div className='form-group my-2'>
                             <label htmlFor="vacPrice"> Price</label>
                             <input type="text" id="vacPrice" placeholder='Price' className='form-control'/> 
-                            <label id="vacStartDateWarning" htmlFor="vacName" className='text-danger text-bold '>Price is required </label>
+                            {warnings.priceWarning && <label id="vacPriceWarning" htmlFor="vacPrice" className='text-danger text-bold '>{warnings.priceWarning} </label>}
 
                         </div>
                         <div className='form-group my-2'>
                             <label htmlFor="vacImage"> Vacation image</label>
                             <input type="file" accept="image/*" id="vacImage" placeholder='Vacation name' className='form-control '/> 
-                            <label id="vacPriceWarning" htmlFor="vacName" className='text-danger text-bold '> An image is required </label>
+                            {warnings.imageWarning && <label id="vacImageWarning" htmlFor="vacImage" className='text-danger text-bold '>{warnings.imageWarning} </label>}
 
                         </div>
                         <div className="modal-buttons">
