@@ -111,12 +111,15 @@ var storage = multer.diskStorage({
         cb(null, 'public/images/')
     },
     filename: function (req, file, cb) {
+        console.log("req: ", req.body);
+        console.log("file: ", file);
         db.addVacation(
             req.body.name,
             req.body.description,
             req.body.startDate, 
             req.body.endDate, 
             req.body.price, 
+            path.extname(file.originalname),
             (imageName) => { 
                 cb(null, imageName + path.extname(file.originalname)) //Appending extension
 
@@ -170,6 +173,13 @@ app.post('/verifyToken', (req, res) => {
     // res.send("aha");
     // res.send({"success" : true, username: payload.username});
     
+
+});
+
+app.get('/getvacations', (req, res) => {
+    db.getVacations(result => {
+        res.send(result);
+    });
 
 });
 

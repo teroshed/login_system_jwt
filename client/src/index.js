@@ -5,7 +5,6 @@ import reportWebVitals from './reportWebVitals';
 import MainContainer from './pages/MainContainer';
 import Routing from './Routing';
 
-
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>

@@ -131,8 +131,9 @@ function addUser(email, password, username, name, last_name, callback)
  * Inserting a vacation without file name, and then checking the last ID, to decide what would be the image name
  * and then updating the entry with the corresponding image name.
  */
-function addVacation(name, description, startDate, endDate, price, callback)
+function addVacation(name, description, startDate, endDate, price, extension, callback)
 {
+    console.log("Add vacation extension: ", extension);
     let insertQ = `INSERT INTO vacations (name, description, startDate, endDate, price) 
     VALUES (?, ?, ?, ?, ?)`;
     con.execute(insertQ, [name, description, startDate, endDate, price], (err, res) => {
@@ -145,7 +146,9 @@ function addVacation(name, description, startDate, endDate, price, callback)
             console.log("Result: ", res);
             console.log("Last id:" + res.insertId);
             let insertId = res.insertId;
-            let updateQ = `UPDATE vacations SET imageName = "${name}${insertId}" WHERE vacID = ${insertId}`
+            console.log("Final image name: ", "'" + name + insertId + extension + "'");
+
+            let updateQ = `UPDATE vacations SET imageName = "${name}${insertId}${extension}" WHERE vacID = ${insertId}`
             con.execute(updateQ, (innerErr, innerRes) => {
                 console.log("hey")
                 if(innerErr)
@@ -166,6 +169,18 @@ function addVacation(name, description, startDate, endDate, price, callback)
 
 }
 
+function getVacations(callback)
+{
+    let query = 'SELECT * FROM vacations'; 
+    con.query(query, (err, res) => {
+        if(err)
+        {
+            console.log("Error getting Vacations: ", err.message);
+        }
+        callback(res);
+    })
+}
+
 async function getLastID(table)
 {
     let query = `SELECT LAST_INSERT_ID() FROM vacations`;
@@ -182,3 +197,4 @@ module.exports.authUser = authUser;
 module.exports.query = query;
 module.exports.getLastID = getLastID;
 module.exports.addVacation = addVacation;
+module.exports.getVacations = getVacations;

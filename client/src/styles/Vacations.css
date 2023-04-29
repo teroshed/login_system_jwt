@@ -3,6 +3,7 @@
     box-shadow: -1px 2px 10px 1px rgba(0,0,0,0.4);
     cursor: pointer;
     transition: 0.3s;
+    min-width: 150px;
 }
 
 .card:hover
@@ -16,11 +17,7 @@
     border-top-left-radius: 5px;
 }
 
-.vacations-cont 
-{
-    width: 90%;
 
-}
 
 .vacbody
 {
@@ -107,6 +104,7 @@
 #sortSelect
 {
     min-width: 120px;
+    
 }
 
 .text-bold
@@ -123,5 +121,54 @@
 {
     box-shadow: 0px 0px 5px  red !important;
 
+}
+
+.order-button
+{
+    background-color: springgreen;
+    border: 2px solid black;
+}
+.order-button:hover
+{
+    background-color: chartreuse;
+    border: 3px solid white;
+}
+
+.vac-price
+{
+    font-size: 4vh;
+}
+
+.vacation-nav
+{
+    text-align: left;
+}
+
+.add-vac-button
+{
+    border: solid 2px black;
+}
+
+
+
+.add-vac-button:hover
+{
+    background-color: black;
+    color: white;
+}
+
+.add-vac-button:hover > .add-plus
+{
+    border: dotted 2px ;
+}
+
+
+
+.add-plus
+{
+    height: 4vh;
+    width: 30px;
+    border: dotted 2px black;
+    border-radius: 100%;
 }
 

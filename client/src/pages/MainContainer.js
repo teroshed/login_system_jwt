@@ -2,6 +2,9 @@ import React, {useState, useEffect} from 'react'
 import {
     createBrowserRouter,
     RouterProvider,
+    useLocation,
+    useNavigate,
+    useRoutes,
   } from "react-router-dom";
 import LoginForm from '../components/LoginForm';
 import Navbar from '../components/Navbar';
@@ -19,8 +22,13 @@ import { Outlet } from "react-router-dom";
 
 
 function MainContainer(props) {
+  const navigate = useNavigate();
+  const location = useLocation();
+  // const route = useRoutes();
     useEffect(() => {
-        console.log('home')
+      if(location.pathname == "/")
+        navigate('/vacations');
+      console.log(location);
     });
     
   return (

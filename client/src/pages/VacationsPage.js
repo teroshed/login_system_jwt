@@ -12,96 +12,7 @@ function VacationsPage() {
 
     const url = "http://localhost:3001";
 
-    const [vacations, setVacations] = useState([
-        {
-            title: "Rome",
-            description: "Lorem ipsum dolor sit amet, consectetur adip",
-            startDate: new Date(2023, 4, 15),
-            endDate: new Date(2023, 6, 15),
-            price: 100,
-            image: "rome.jpg"
-        },
-        {
-            title: "Italy",
-            description: "Lorem ipsum dolor sit amet, consectetur adip",
-            startDate: new Date(2023, 2, 15),
-            endDate: new Date(2023, 6, 15),
-            price: 200,
-            image: "italy.jpeg"
-        },
-        {
-            title: "not italy",
-            description: "Lorem ipsum dolor sit amet, consectetur adip",
-            startDate: new Date(2023, 5, 15),
-            endDate: new Date(2023, 6, 15),
-            price: 300,
-            image: "italy.jpeg"
-        },
-        {
-            title: "Italy",
-            description: "Lorem ipsum dolor sit amet, consectetur adip",
-            startDate: new Date(2023, 5, 15),
-            endDate: new Date(2023, 6, 15),
-            price: 50,
-            image: "italy.jpeg"
-        },
-        {
-            title: "Italy",
-            description: "Lorem ipsum dolor sit amet, consectetur adip",
-            startDate: new Date(2023, 5, 15),
-            endDate: new Date(2023, 6, 15),
-            price: 200,
-            image: "italy.jpeg"
-        },
-        {
-            title: "Italy",
-            description: "Lorem ipsum dolor sit amet, consectetur adip",
-            startDate: new Date(2023, 5, 15),
-            endDate: new Date(2023, 6, 15),
-            price: 200,
-            image: "italy.jpeg"
-        },
-        {
-            title: "Italy",
-            description: "Lorem ipsum dolor sit amet, consectetur adip",
-            startDate: new Date(2023, 5, 15),
-            endDate: new Date(2023, 6, 15),
-            price: 200,
-            image: "italy.jpeg"
-        },
-        {
-            title: "Italy",
-            description: "Lorem  ipsum dolor sit amet, consectetur adip",
-            startDate: new Date(2023, 5, 15),
-            endDate: new Date(2023, 6, 15),
-            price: 200,
-            image: "italy.jpeg"
-        },
-        {
-            title: "Italy",
-            description: "Lorem ipsum dolor sit amet, consectetur adip",
-            startDate: new Date(2023, 5, 15),
-            endDate: new Date(2023, 6, 15),
-            price: 200,
-            image: "italy.jpeg"
-        },
-        {
-            title: "Italy",
-            description: "Lorem ipsum dolor sit amet, consectetur adip",
-            startDate: new Date(2023, 5, 15),
-            endDate: new Date(2023, 6, 15),
-            price: 200,
-            image: "italy.jpeg"
-        },
-        {
-            title: "Italy",
-            description: "Lorem ipsum dolor sit amet, consectetur adip",
-            startDate: new Date(2023, 5, 15),
-            endDate: new Date(2023, 6, 15),
-            price: 30,
-            image: "italy.jpeg"
-        }
-    ])
+    const [vacations, setVacations] = useState([]);
 
     const [warnings, setWarnings] = useState({});
 
@@ -114,14 +25,31 @@ function VacationsPage() {
             vacs.sort((a, b) => {
                 return a.startDate.getTime() - b.startDate.getTime();
             })
+            getVacations();
             setVacations(vacs);
             first = false;
         }
     }, [])
 
-    // useEffect(() => {
-    //     console.log("test2")
-    // })
+
+
+    async function getVacations()
+    {
+        let vacations = await axios.get(url + '/getvacations');
+        vacations = vacations.data;
+        console.log(vacations);
+        let formattedVacs = [];
+        for(let i = 0; i < vacations.length; i++)
+        {
+            formattedVacs[i] = {
+                ...vacations[i],
+                startDate: new Date(vacations[i].startDate),
+                endDate: new Date(vacations[i].endDate)
+            }
+        }
+        // console.log(formattedVacs);
+        setVacations(formattedVacs);
+    }
 
     function addVacationButton(e) { 
         console.log("Hey")
@@ -161,14 +89,15 @@ function VacationsPage() {
                     image: e.target[5].files[0]
                 };
             console.log("JSOn: ", json);
+            let a = await axios.post(url + "/addVacation", json, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+            console.log(a)
         }
         
-        // let a = await axios.post(url + "/addVacation", json, {
-        //     headers: {
-        //         'Content-Type': 'multipart/form-data'
-        //     }
-        // });
-        // console.log(a)
+        
         
     }
 
@@ -213,7 +142,7 @@ function VacationsPage() {
             fields.image.classList.add("red-input");
             flag = false;
         }
-        
+
         let pickedStartDate = new Date(fields.startDate.value); 
         let pickedEndDate = new Date(fields.endDate.value);
         let today = new Date();
@@ -237,9 +166,7 @@ function VacationsPage() {
             flag = false;
         }
         setWarnings(tempWarnings);
-        console.log("Warnings at end: ", warnings)
-        // console.log("start date: ", new Date(fields.startDate.value));
-        return false;
+        return flag;
     }
     
     function sortChange(e)
@@ -302,7 +229,7 @@ function VacationsPage() {
                         </div>
                         <div className='form-group my-2'>
                             <label htmlFor="vacPrice"> Price</label>
-                            <input type="text" id="vacPrice" placeholder='Price' className='form-control'/> 
+                            <input type="number" id="vacPrice" placeholder='Price' className='form-control'/> 
                             {warnings.priceWarning && <label id="vacPriceWarning" htmlFor="vacPrice" className='text-danger text-bold '>{warnings.priceWarning} </label>}
 
                         </div>
@@ -333,64 +260,78 @@ function VacationsPage() {
             </div>
             <div className='vacation-bar'>
                 <div className='right'>
-                    <button type='button' className='navbutton' onClick={addVacationButton} data-toggle="modal" data-target="#examplemodal"> Add vacation </button>
                 </div>
             </div>
             
             
-            <div className='vacations-cont mx-auto p-2 container '>
-                <div className='col-4 '>
-                    <div className='d-flex ms-2'>
-                        <label htmlFor="sortSelect justify-content-start"> Sort by:</label>
+            <div className='mx-auto container text-left'>
+                <div className='vacation-nav container'>
+                    <div className='d-flex row '> {/**ms-2 */}
+                        <label htmlFor="sortSelect justify-content-start  "> Sort by:</label>
                     </div>
-                    <div className='row col-5'>
-                        <select onChange={sortChange} id="sortSelect" className='form-select mx-3 ' placeholder='select'>
-                            <option value={1}> Start date </option>
-                            <option value={2}> Name </option>
-                            <option value={3}> Price</option>
-                        </select>
+                    <div className='row d-flex justify-content-between gy-2'>
+                        <div className='col-lg-4 col-md-4'>
+                            <select onChange={sortChange} id="sortSelect" className='form-select ' placeholder='select'>
+                                <option value={1}> Start date </option>
+                                <option value={2}> Name </option>
+                                <option value={3}> Price</option>
+                            </select>
+                        </div>
+                        <div id="addcont" className='col-lg-2 p-0 text-nowrap col-sm-4 add-vac-cont d-flex '>
+                            <button id="addbtn" type='button' className='d-flex col-12 add-vac-button btn' onClick={addVacationButton} data-toggle="modal" data-target="#examplemodal"> 
+                                <div id="text" className=''> Add vacation </div>
+                                <div id="addplus" className='add-plus col-2 mx-2 d-flex align-items-center justify-content-center pb-1'> + </div>
+
+                            </button>
+
+                        </div>
                     </div>
                     
+                    
                 </div>
-                <div className='row p-2'>
+                <div className='row '>
                     {
                     vacations.map((vac, index) => 
                     {
                         return (
-                        <div key={"vac" + index}  className="col-3 g-4">
-                            <div className="card ">
-                                <div>
-                                    <div className=' '>
-                                        <img className='col-12 vacimage' src={"http://localhost:3001/images/" + vac.image}/> 
-                                    </div>
-                                    <div className='rounded-top'>
-                                        <h4> {vac.title} </h4>
-                                        <div className='underTitle rounded-top'>
-                                            <div className=' col-12 date'>{vac.startDate.toDateString()} - {vac.endDate.toDateString()} </div>
-                                            <div className="underDate rounded-top">
-                                                <p> {vac.description} </p>
-                                                <div className='row d-flex justify-content-between px-1 mx-auto col-10'> 
-                                                    
-                                                    <div className='col-6'>
-                                                        <button type="button" className="btn btn-primary shadow mb-2 order-"> Order</button>
+                            <div key={"vac" + index}  className="col-md-4 col-lg-3  g-4" >
+                                <div className="card ">
+                                    <div>
+                                        <div className=' '>
+                                            <img className='col-12 vacimage' src={"http://localhost:3001/images/" + vac.imageName}/> 
+                                        </div>
+                                        <div className='rounded-top'>
+                                            <h4> {vac.title} </h4>
+                                            <div className='underTitle rounded-top'>
+                                                <div className=' col-12 date'>{vac.startDate.toLocaleDateString("he-IL")} - {vac.endDate.toLocaleDateString("he-IL")} </div>
+                                                <div className="underDate rounded-top">
+                                                    <p> {vac.description} </p>
+                                                    {/* <div className='row d-flex justify-content-between mx-auto col-10 '> 
+                                                        
+                                                        <div className='col-6'>
+                                                            <button type="button" className="btn btn-primary shadow mb-2 order-"> Order</button>
+                                                        </div>
+                                                        <div className='col-6 '>
+                                                            <p className="bold">Price: ${vac.price}</p>
 
+                                                        </div>
+
+                                                    </div> */}
+                                                    <div className="card-footer">
+                                                    <h4 className='bold vac-pric '> {vac.price}$ </h4>
+
+                                                        <button type="button" className="btn order-button"> Order </button>
                                                     </div>
-                                                    <div className='col-6 '>
-                                                        <p className="bold">Price: ${vac.price}</p>
-
-                                                    </div>
-
                                                 </div>
+                                                
                                             </div>
                                             
+                                            
                                         </div>
-                                        
-                                        
                                     </div>
+                                    
                                 </div>
-                                
                             </div>
-                        </div>
                     );
                     }
                     

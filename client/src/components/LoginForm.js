@@ -10,7 +10,7 @@ import FormWrapper from './FormWrapper';
 
 
 
-function LoginForm() 
+function LoginForm(props) 
 {
     const [timeout, setTimeout] = useState();
     const [btnText, setText] = useState("Login");
@@ -158,4 +158,5 @@ function LoginForm()
   )
 }
 
-export default LoginForm
+
+export default LoginForm;
