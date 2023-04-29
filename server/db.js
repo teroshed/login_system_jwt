@@ -19,36 +19,23 @@ con.connect((err) => {
     if(err)
     {
         console.error("Error connecting to database.");
+        return;
     }
-    else
-    {
-        console.log("Connected to database.");
-        setDatabase();
-    }
+    console.log("Connected to database.");
 
 });
 
-function setDatabase() {
-    console.log("setDatabase");
-    
-
-    // addUser("email@gmail.com", "pass123", "username123", "name123", "last_name1");
-    createTable(res => {
-        
-    });
 
 
-}
-
-function authUser(login, password, callback)
+function authUser(email, password, callback)
 {
     // console.log(con);
-    let query = `SELECT id, username, name, last_name FROM users WHERE (email = '${login}' OR username = '${login}') AND (password = '${password}')`;
+    let query = `SELECT userId, email, name, last_name FROM users WHERE email = '${email}' AND password = '${password}'`;
     con.query(query, (err, result) => {
         if(err)
         {
             console.log("error auth: " + err.message);
-            result = {success: false, code: 404, message: "Error connecting to database"};
+            result = {success: false, code: 404, message: "Unkonwn error"};
         }
         // else
         // {
@@ -77,28 +64,6 @@ function getUsers(callback) {
     });
 }
 
-async function createTable(callback)
-{
-    let query = `CREATE TABLE IF NOT EXISTS users (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        email varchar(128) NOT NULL UNIQUE, 
-        password varchar(128) NOT NULL,
-        username varchar(32) NOT NULL UNIQUE,
-        name varchar(32),
-        last_name varchar(32));
-        `;
-    
-    con.execute(query, (err, res) => {
-        if(err)
-            console.error("Error createtable");
-        else
-        {
-            console.log("Created table");
-            callback && callback();
-        }
-    
-    });
-}
 
 function query(query, callback)
 {
@@ -117,9 +82,9 @@ function dropTable() {
     });
 }
 
-function addUser(email, password, username, name, last_name, callback)
+function addUser(email, password, name, last_name, callback)
 {
-    let query = `INSERT INTO users (email, password, username, name, last_name) VALUES ("${email}", "${password}", "${username}", "${name}", "${last_name}")`;
+    let query = `INSERT INTO users (email, password, name, last_name) VALUES ("${email}", "${password}", "${name}", "${last_name}")`;
     con.execute(query, (err, res) => {
 
         if(callback)

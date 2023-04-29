@@ -18,6 +18,9 @@ function LoginForm(props)
     const [logged, setLogged] = useState(false);
     const [first, setFirst] = useState(true);
     const [username, setUsername] = useState();
+    const [mailLabel, setMailLabel] = useState(false);
+    const [passwordLabel, setPassLabel] = useState(false);
+
     const navigate = useNavigate();
 
 
@@ -29,8 +32,6 @@ function LoginForm(props)
 
         if(first)
         {
-            // cookies.clearCookies();;
-            // cookies.setCookie("testCookie" + Math.random(), 123+Math.random()*10);
 
             setFirst(false);
             let token = cookies.getCookie("token");
@@ -39,7 +40,7 @@ function LoginForm(props)
                 verifyToken(ans => {
                     if(ans.ok)
                     {
-                        navigate("/");
+                        navigate("/vacations");
                     }
 
                 })
@@ -85,9 +86,27 @@ function LoginForm(props)
 
     async function logButton() 
     {
-        let username = await document.getElementById('userinput').value;
-        let password = await document.getElementById('passinput').value;
-        logIn({username, password}, ans => {
+        let email = document.getElementById('mailinput');
+        let password = document.getElementById('passinput');
+        let flag = true;
+        if(email.value.replaceAll(" ", "") == "")
+        {
+            email.classList.add("required");
+            setMailLabel(true);
+            flag = false;
+        }   
+        if(password.value.replaceAll(" ", "") == "")
+        {
+            password.classList.add("required");
+
+            setPassLabel(true);
+            flag = false;
+        }   
+
+        if(!flag)
+            return;
+
+        logIn({email: email.value, password: password.value}, ans => {
             console.log("Log ans: ", ans)
             if(ans.success)
             {
@@ -115,21 +134,6 @@ function LoginForm(props)
 
         }) 
         return;
-        let res = await axios.post('http://localhost:3001/login', {username , password});
-        res = res.data;
-        console.log("Result: ", res);
-        if(res.success)
-        {
-            setStatus("Logged in");
-            setLogged(true);
-            cookies.setCookie("token", res.token, 1800);
-            setStatusClass("text-success");
-        }
-        else
-        {
-            setStatusClass("text-danger");
-            setStatus("Wrong password or username ");
-        }
     }
 
 
@@ -138,14 +142,24 @@ function LoginForm(props)
     
         <div className="p-4">
         
-        <label htmlFor="userinput" className="d-flex "> Username:</label>
-        <input tabIndex="1" type="text" id="userinput" className="form-control mb-2" placeholder="Username"/>
-        <label htmlFor="passinput" className="d-flex"> Password:</label>
-        <input tabIndex="2" type="text" id="passinput" className="form-control mb-2" placeholder="Password"/>
-        <div className="">
-            <a href="/register" className="link-primary float-end"> Register </a>
+        <div className='row form-group '>
+            <label htmlFor="mailinput" className="d-flex "> Email:</label>
+            <input tabIndex="1" type="text" id="mailinput" className="form-control" placeholder="E-mail"/>
+            {mailLabel && <label className='text-danger'> Please enter an email </label>}
+        </div>
+        
+        <div className="row containerform-group my-2">
+            <label htmlFor="passinput" className="d-flex"> Password:</label>
+            <input tabIndex="2" type="password" id="passinput" className="form-control " placeholder="Password"/>
+            {passwordLabel && <label className='text-danger'> Please enter a password </label>}
 
-            <button tabIndex="3" type="button" onClick={logButton} className="btn btn-primary  d-flex "> {btnText} </button>
+        </div>
+        
+        <div className="row d-flex justify-content-between">
+            <button tabIndex="3" type="button" onClick={logButton} className="btn btn-primary col-4"> {btnText} </button>
+
+            <a href="/register" className="link-primary col-4 "> Register </a>
+
 
         </div>
         

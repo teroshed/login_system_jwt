@@ -24,24 +24,24 @@ app.use(cookieParser());
 app.use(express.static('public'))
 
 
-function generateAccessToken(username, expireIn = 1800) {
+function generateAccessToken(tokenData, expireIn = 1800) {
     
     let exp = new Date().getTime() + expireIn*1000 ;
     if(expireIn == 0)
         exp = 0;
-    return jwt.sign({username, exp}, secret);
+    return jwt.sign({tokenData, exp}, secret);
   }
 
 app.post("/login", (req, res) => {
     // db.addUser("email@email.com", "pass", "dani", "daniel", "terosh");
-
-    db.authUser(req.body.username, req.body.password, result => {
+    console.log("req: ", req.body);
+    db.authUser(req.body.email, req.body.password, result => {
         console.log("Auth: ", result);
         if(result.ok)
         {
             if(result.data != null && result.data.length > 0)
             {
-                let token = generateAccessToken(req.body.username);
+                let token = generateAccessToken({name: req.body.name, last_name: req.body.last_name});
                 res.send({success: true, token});
             }
             else
@@ -51,7 +51,6 @@ app.post("/login", (req, res) => {
         }
         else
         {
-            console.log("")
             res.send(result);
         }
 
@@ -60,10 +59,8 @@ app.post("/login", (req, res) => {
 
 app.post("/register", (req, res) => {
     console.log("Register: ", req.body);
-    const searchQuery = `SELECT * FROM users WHERE username = "${req.body.username}" OR email = "${req.body.email}"`;
-    console.log("Query: ", searchQuery);
+    const searchQuery = `SELECT * FROM users WHERE email = "${req.body.email}"`;
     db.query(searchQuery, (err,result) => {
-        console.log("here");
         if(err)
         {
             console.log("Error at checking on register for duplicates:", err);
@@ -74,23 +71,19 @@ app.post("/register", (req, res) => {
         {
             if(result.length > 0)
             {
-                console.log("Result: ", result);
-                console.log("Already exists user");
                 return res.send({ok: false, code: 1, message: "User with that username or email already exists"})
             }
             else
             {
-                db.addUser(req.body.email, req.body.password, req.body.username, req.body.name, req.body.lastname, (err, resp) => {
+                db.addUser(req.body.email, req.body.password, req.body.name, req.body.lastname, (err, resp) => {
                     if(err)
-                        res.send({ok : false});
+                        return res.send({ok : false});
                     else 
                     {
-                        console.log("Register: ", req.body);
-                        res.send({ok : true});
+                        return res.send({ok : true});
 
                     }
                 });
-                // return res.send({ok: true})
             }
         }
     })

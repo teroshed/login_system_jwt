@@ -4,13 +4,18 @@ import NavigationBar from '../components/NavigationBar';
 import "../styles/Vacations.css";
 import Modal from 'react-bootstrap/Modal';
 import axios from 'axios';
-
+import cookies from '../misc/cookies';
+import { verifyToken } from '../misc/loginUtils';
+import { useNavigate } from 'react-router-dom';
+import jwtDecode from 'jwt-decode';
 
 var first = true;
 
 function VacationsPage() {
 
     const url = "http://localhost:3001";
+
+    const navigate = useNavigate();
 
     const [vacations, setVacations] = useState([]);
 
@@ -21,6 +26,19 @@ function VacationsPage() {
     useEffect(() => { 
         if(first)
         {
+            
+            console.log("Cookies: ", document.cookie);
+            let token = cookies.getCookie('token');
+            if(!token)
+            {
+                console.log("Not logged");
+                navigate("/login")
+                return;
+            }
+            else
+            {
+                console.log("logged, decoded token: ", jwtDecode(token));
+            }
             let vacs = structuredClone(vacations);
             vacs.sort((a, b) => {
                 return a.startDate.getTime() - b.startDate.getTime();
