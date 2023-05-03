@@ -8,7 +8,8 @@ import cookies from '../misc/cookies';
 import { verifyToken } from '../misc/loginUtils';
 import { useNavigate } from 'react-router-dom';
 import jwtDecode from 'jwt-decode';
-
+import { FiDelete, FiEdit, FiHeart, FiTrash } from 'react-icons/fi';
+import {AiFillHeart} from 'react-icons/ai'
 var first = true;
 
 function VacationsPage() {
@@ -23,11 +24,11 @@ function VacationsPage() {
 
     const [modal, setModal] = useState(false);
 
+    const [tokenData, setTokenData] = useState();
+    const [favorites, setFavorites] = useState();
+
     useEffect(() => { 
-        if(first)
-        {
             
-            console.log("Cookies: ", document.cookie);
             let token = cookies.getCookie('token');
             if(!token)
             {
@@ -37,7 +38,9 @@ function VacationsPage() {
             }
             else
             {
-                console.log("logged, decoded token: ", jwtDecode(token));
+                
+                setTokenData(jwtDecode(token).tokenData);
+                console.log("Decoded token: ", jwtDecode(token));
             }
             let vacs = structuredClone(vacations);
             vacs.sort((a, b) => {
@@ -45,8 +48,6 @@ function VacationsPage() {
             })
             getVacations();
             setVacations(vacs);
-            first = false;
-        }
     }, [])
 
 
@@ -204,15 +205,25 @@ function VacationsPage() {
         setVacations(vacs);
     }
 
+    async function toggleVacation(vacID)
+    {
+        
+        console.log("Toggle vacation: " + vacID);
+        console.log("Token data: ", tokenData);
+        let a = await axios.post(url + "/toggleVacation", {vacID, userID: tokenData.userId});
+        getFavorites();
+    }
+
+    async function getFavorites()
+    {
+        
+    }
+
   return (
     <>
 
     <div className='center vacpage'>
-        {/* <div className="modal fade" id="exampleModal" tabIndex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div className="modal-dialog" role="document">
-                123
-            </div>
-        </div> */}
+
         <Modal id="modal" show={modal} onHide={() => setModal(false)}>
             <div className='container'>
                 <Modal.Header bsPrefix='modalHeader' closeButton>
@@ -316,25 +327,30 @@ function VacationsPage() {
                                 <div className="card ">
                                     <div>
                                         <div className=' '>
+                                            {
+                                                tokenData && 
+                                                tokenData.admin ?
+                                                <>
+                                                    <div className="edit"> Edit <FiEdit className='col-3'></FiEdit>  </div>
+                                                    <div className="delete"> <FiTrash></FiTrash> </div>
+                                                </>
+                                                :
+                                                <button onClick={() => {toggleVacation(vac.vacID)}} type="button" className='heart'> <FiHeart id={"heart" + index} className='heartIcon'></FiHeart> </button>
+                                            }
+                                            
+
                                             <img className='col-12 vacimage' src={"http://localhost:3001/images/" + vac.imageName}/> 
                                         </div>
                                         <div className='rounded-top'>
-                                            <h4> {vac.title} </h4>
+                                            <h4> {vac.name} </h4>
                                             <div className='underTitle rounded-top'>
                                                 <div className=' col-12 date'>{vac.startDate.toLocaleDateString("he-IL")} - {vac.endDate.toLocaleDateString("he-IL")} </div>
-                                                <div className="underDate rounded-top">
-                                                    <p> {vac.description} </p>
-                                                    {/* <div className='row d-flex justify-content-between mx-auto col-10 '> 
-                                                        
-                                                        <div className='col-6'>
-                                                            <button type="button" className="btn btn-primary shadow mb-2 order-"> Order</button>
-                                                        </div>
-                                                        <div className='col-6 '>
-                                                            <p className="bold">Price: ${vac.price}</p>
+                                                <div className="underDate rounded-top container">
+                                                    <div className='description-box'>
+                                                        <p className='description-p'> {vac.description} </p>
 
-                                                        </div>
+                                                    </div>
 
-                                                    </div> */}
                                                     <div className="card-footer">
                                                     <h4 className='bold vac-pric '> {vac.price}$ </h4>
 

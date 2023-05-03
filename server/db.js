@@ -35,12 +35,13 @@ function authUser(email, password, callback)
         if(err)
         {
             console.log("error auth: " + err.message);
-            result = {success: false, code: 404, message: "Unkonwn error"};
+            result = {ok: false, data: {code: 404, message: "Unkonwn error"}};
+            callback && callback(result);
         }
-        // else
-        // {
+        else
+        {
             callback && callback({ok: true, data: result});
-        // }
+        }
     });
 }
 
@@ -92,6 +93,7 @@ function addUser(email, password, name, last_name, callback)
     })
 }
 
+
 /**
  * Inserting a vacation without file name, and then checking the last ID, to decide what would be the image name
  * and then updating the entry with the corresponding image name.
@@ -134,6 +136,51 @@ function addVacation(name, description, startDate, endDate, price, extension, ca
 
 }
 
+function getFavorites(userId, callback)
+{
+    
+}
+
+function toggleFavorite(vacId, userId)
+{
+    let selectQuery = `SELECT * FROM favorites WHERE userId = ${userId} AND vacId = ${vacId};`;
+    con.query(selectQuery, (err, results) => {
+        if(err)
+        {
+            console.log("error toggle favorite: ", err.message);
+        }
+        else
+        {
+            console.log("Results: ", results)
+            if(results.length == 0)
+            {
+                let insertQuery = `INSERT INTO favorites (userID, vacID) VALUES (${userId},${vacId});`
+                con.query(insertQuery, (insertErr, insertResults) => {
+                    if(insertErr)
+                    {
+                        console.log("Error inserting favorite: ", insertErr.message);
+                    }
+                    else
+                    {
+                        console.log("Inserted favorite: (vacID: " + vacId + ", userID: " + userId + ")");
+                    }
+                });
+            }
+            else
+            {
+                let deleteQuery = `DELETE FROM favorites WHERE userID = ${userId} && vacID = ${vacId}`;
+                con.query(deleteQuery, (deleteErr, deleteResults) => { 
+                    if(deleteErr)
+                    {
+                        console.log("Error deleting: ", deleteErr.message)
+                    }
+                    console.log("deleted favorite: (vacid" + vacId + ", userID:" + userId);
+                })
+            }
+        }
+    }); 
+}
+
 function getVacations(callback)
 {
     let query = 'SELECT * FROM vacations'; 
@@ -163,3 +210,5 @@ module.exports.query = query;
 module.exports.getLastID = getLastID;
 module.exports.addVacation = addVacation;
 module.exports.getVacations = getVacations;
+module.exports.toggleFavorite = toggleFavorite;
+module.exports.getFavorites = getFavorites;

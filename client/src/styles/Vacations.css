@@ -172,3 +172,76 @@
     border-radius: 100%;
 }
 
+
+
+.description-p
+{
+    overflow-y: auto;
+}
+
+.description-box
+{
+    height: 60px!important;
+}
+
+.edit
+{
+    position: absolute;
+    background-color: white;
+    border-radius: 10%;
+    top: 3%;
+    left: 3%;
+    width: 25%;
+    transition: 0.3s;
+}
+
+.edit:hover
+{
+    background-color: dodgerblue;
+    color: white;
+}
+
+.delete
+{
+    position: absolute;
+    background-color: white;
+    border-radius: 100%;
+    width: 25px;
+    height: 25px;
+    right: 3%;
+    top: 3%;
+    transition: 0.3s;
+}
+
+.delete:hover{
+    background-color: dodgerblue;
+    color:white;
+}
+
+.heart:hover{
+    background-color: dodgerblue;
+}
+
+.heart
+{
+    position: absolute;
+    background-color: white;
+    border-radius: 100%;
+    width: 25px;
+    height: 25px;
+    right: 3%;
+    top: 3%;
+    transition: 0.3s;
+}
+
+.heartIcon
+{
+    position: absolute;
+    top: 15%;
+    left: 15%;
+}
+
+.red
+{
+    color: red;
+}

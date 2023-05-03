@@ -121,9 +121,9 @@ function LoginForm(props)
             {
                 setStatusClass("text-danger");
 
-                if(ans.code == 404)
+                if(ans.data.code == 404)
                     setStatus("Server error");
-                else if(ans.code == 401)
+                else if(ans.data.code == 401)
                     setStatus("Login and Password doesn't match");
             }
             // let decoded = jwtDecode(ans.token);

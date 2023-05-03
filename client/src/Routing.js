@@ -55,7 +55,6 @@ const router = createBrowserRouter([
 
 function Routing() {
     useEffect(() => {
-        console.log('home')
     });
     
   return (

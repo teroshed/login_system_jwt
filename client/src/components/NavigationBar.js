@@ -13,35 +13,45 @@ function NavigationBar() {
     const [tokenData, setTokenData] = useState();
 
     useEffect(() => {
+        // cookies.deleteCookie("token");
         let token = cookies.getCookie('token');
+        console.log("Token: " + token);
         if(token)
         {
-            console.log("token decoded: ", jwtDecode(token));
-            setTokenData(token);
+            setTokenData(jwtDecode(token).tokenData);
         }
-        console.log("test useeffect navbar")
-            // setTokenData(jwtDecode(token));
     }, [])
     function homeButton() { 
 
     }
+
+    function logout()
+    {
+        setTokenData(null);
+        cookies.deleteCookie("token");
+        navigate('/login')
+    }
     
     return (
-        <nav id="navbar" className="pl-2">
-            <div className="navbar-left col-6">
-                <button type="button" className=" col-2 navbutton">
-                    <span> 123</span>
-                </button>
-                <button onClick={() => {navigate("/")}} type="button" className=" col-2 navbutton"> Home </button>
-                <button onClick={() => {navigate("/vacations")}} type="button" className=" col-2 navbutton"> Vacations </button>
-                <button type="button" className=" col-2 navbutton"> About </button>
-                <div className="col"> 
+        <nav id="navbar" className="d-flex">
+            <div className="navbar-left col-6 d-flex">
+                <div className='col-2'>
+                    <button onClick={() => {navigate("/")}} type="button" className="navbutton w-100"> Home </button>
+                </div>
+                <div className='col-3'>
+                    <button onClick={() => {navigate("/vacations")}} type="button" className="w-100 navbutton"> Vacations </button>
 
                 </div>
+                <div>
+                    <button type="button" className="w-100 navbutton"> About </button>
+
+                </div>
+                
             </div>
             
-            <div className="navbar-right d-flex float-end">
-                <button type="button" className="navbutton"> tf </button>
+            <div className="navbar-right d-flex justify-content-end w-100">
+     
+                {tokenData && <button type="button" onClick={() => logout()} className="navbutton"> Hey {tokenData.name} ! Log out </button>}
             </div>
         </nav>
     )

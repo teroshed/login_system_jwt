@@ -20,7 +20,7 @@ import { element } from 'prop-types';
 import { Outlet } from "react-router-dom";
 import cookies from '../misc/cookies';
 import jwtDecode from 'jwt-decode';
-
+import Swal from 'sweetalert2';
 
 
 function MainContainer(props) {
@@ -29,11 +29,23 @@ function MainContainer(props) {
   // const route = useRoutes();
     useEffect(() => {
       let token = cookies.getCookie('token');
-      let decoded = jwtDecode(token);
-      if(new Date().getTime())
+      if(token)
+      {
+        let decoded = jwtDecode(token);
+        if(new Date().getTime() > decoded.exp)
+        {
+          cookies.deleteCookie('token');
+          Swal.fire({
+            title: "Token expired",
+            text: "Please log in to continue",
+          }).then(() => {
+            navigate("/login");
+          })
+        }
+      }
+      
       if(location.pathname == "/")
         navigate('/vacations');
-      console.log(location);
     });
     
   return (

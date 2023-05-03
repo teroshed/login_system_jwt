@@ -25,7 +25,7 @@ app.use(express.static('public'))
 
 
 function generateAccessToken(tokenData, expireIn = 1800) {
-    
+    console.log("Token data: ", tokenData);
     let exp = new Date().getTime() + expireIn*1000 ;
     if(expireIn == 0)
         exp = 0;
@@ -41,7 +41,7 @@ app.post("/login", (req, res) => {
         {
             if(result.data != null && result.data.length > 0)
             {
-                let token = generateAccessToken({name: req.body.name, last_name: req.body.last_name});
+                let token = generateAccessToken({name: result.data[0].name, last_name: result.data[0].last_name, userId: result.data[0].userId} );
                 res.send({success: true, token});
             }
             else
@@ -51,6 +51,7 @@ app.post("/login", (req, res) => {
         }
         else
         {
+            console.log("Result: ", result);
             res.send(result);
         }
 
@@ -167,6 +168,22 @@ app.post('/verifyToken', (req, res) => {
     // res.send({"success" : true, username: payload.username});
     
 
+});
+
+
+//Add token check,
+app.post('/toggleVacation', (req, res) => { 
+    console.log("toggle vac: ", req.body);
+    db.toggleFavorite(req.body.vacID, req.body.userID);
+    res.send();
+})
+
+app.post('/getFavorites', (req, res) => {
+    let token = req.body.token;
+    
+    db.getFavorites(result => {
+        res.send(result);
+    });
 });
 
 app.get('/getvacations', (req, res) => {
