@@ -30,7 +30,7 @@ con.connect((err) => {
 function authUser(email, password, callback)
 {
     // console.log(con);
-    let query = `SELECT userId, email, name, last_name FROM users WHERE email = '${email}' AND password = '${password}'`;
+    let query = `SELECT userId, email, name, last_name, role FROM users WHERE email = '${email}' AND password = '${password}'`;
     con.query(query, (err, result) => {
         if(err)
         {
@@ -136,49 +136,91 @@ function addVacation(name, description, startDate, endDate, price, extension, ca
 
 }
 
-function getFavorites(userId, callback)
+async function editVacation(name, description, startDate, endDate, price, vacID, newImageName)
 {
+    let editQuery = `UPDATE vacations SET name = "${name}", description = "${description}", startDate = "${startDate}", endDate = "${endDate}", price = ${price}`;
+    if(newImageName)
+    {
+        editQuery += `, imageName = "${newImageName}"`;
+    }
+    editQuery += ` WHERE vacID = ${vacID}`
+    let result = await asyncQuery(editQuery);
+    return result;
+                
+}
+
+
+function getFavorites(userId)
+{
+    return new Promise(resolve => {
+
+        con.query(`SELECT vacID FROM favorites WHERE userId = ${userId}`, (err, result) => {
+            if(err)
+            {
+                console.log("error getting favorites: ", err.message);
+                resolve();
+            }
+            else
+            {
+                resolve(result);
+            }
+            
+        });
+    });
     
 }
 
 function toggleFavorite(vacId, userId)
 {
-    let selectQuery = `SELECT * FROM favorites WHERE userId = ${userId} AND vacId = ${vacId};`;
-    con.query(selectQuery, (err, results) => {
-        if(err)
-        {
-            console.log("error toggle favorite: ", err.message);
-        }
-        else
-        {
-            console.log("Results: ", results)
-            if(results.length == 0)
+    return new Promise(function(resolve, reject) {
+
+        let selectQuery = `SELECT * FROM favorites WHERE userId = ${userId} AND vacId = ${vacId};`;
+        con.query(selectQuery, (err, results) => {
+            if(err)
             {
-                let insertQuery = `INSERT INTO favorites (userID, vacID) VALUES (${userId},${vacId});`
-                con.query(insertQuery, (insertErr, insertResults) => {
-                    if(insertErr)
-                    {
-                        console.log("Error inserting favorite: ", insertErr.message);
-                    }
-                    else
-                    {
-                        console.log("Inserted favorite: (vacID: " + vacId + ", userID: " + userId + ")");
-                    }
-                });
+                console.log("error toggle favorite: ", err.message);
+                resolve({ok: false});
+
             }
             else
             {
-                let deleteQuery = `DELETE FROM favorites WHERE userID = ${userId} && vacID = ${vacId}`;
-                con.query(deleteQuery, (deleteErr, deleteResults) => { 
-                    if(deleteErr)
-                    {
-                        console.log("Error deleting: ", deleteErr.message)
-                    }
-                    console.log("deleted favorite: (vacid" + vacId + ", userID:" + userId);
-                })
+                console.log("Results: ", results)
+                if(results.length == 0)
+                {
+                    let insertQuery = `INSERT INTO favorites (userID, vacID) VALUES (${userId},${vacId});`
+                    con.query(insertQuery, (insertErr, insertResults) => {
+                        if(insertErr)
+                        {
+                            console.log("Error inserting favorite: ", insertErr.message);
+                            resolve({ok:false});
+
+                        }
+                        else
+                        {
+                            resolve({ok:true});
+                            console.log("Inserted favorite: (vacID: " + vacId + ", userID: " + userId + ")");
+                        }
+
+                    });
+                }
+                else
+                {
+                    let deleteQuery = `DELETE FROM favorites WHERE userID = ${userId} && vacID = ${vacId}`;
+                    con.query(deleteQuery, (deleteErr, deleteResults) => { 
+                        if(deleteErr)
+                        {
+                            resolve({ok:false});
+
+                            console.log("Error deleting: ", deleteErr.message)
+                        }
+
+                        console.log("deleted favorite: (vacid" + vacId + ", userID:" + userId);
+                        resolve({ok: true});
+                    })
+                }
             }
-        }
-    }); 
+        }); 
+    });
 }
 
 function getVacations(callback)
@@ -201,6 +243,33 @@ async function getLastID(table)
     })
 }
 
+async function deleteVacation(vacID)
+{
+    console.log("delete vacation " + vacID);
+    let query = `DELETE FROM vacations WHERE vacID = ${vacID}`;
+    let response = await asyncQuery(query);
+    if(response.err)
+    {
+        return false;
+    } else
+    {
+        return true;
+    }
+}
+
+async function asyncQuery(query) //Very useful, added too late
+{
+    return new Promise(resolve => {
+        con.query(query, (err, res) => {
+            if(err)
+            {
+                console.log("Error async query: query('" + query + "'), Error: " + err.message);
+            }
+            resolve({err, res});
+        });
+    })
+}
+
 module.exports = con.promise();
 module.exports.getUsers = getUsers;
 module.exports.addUser = addUser;
@@ -212,3 +281,5 @@ module.exports.addVacation = addVacation;
 module.exports.getVacations = getVacations;
 module.exports.toggleFavorite = toggleFavorite;
 module.exports.getFavorites = getFavorites;
+module.exports.deleteVacation = deleteVacation;
+module.exports.editVacation = editVacation;

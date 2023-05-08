@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import jwtDecode from 'jwt-decode';
 import { FiDelete, FiEdit, FiHeart, FiTrash } from 'react-icons/fi';
 import {AiFillHeart} from 'react-icons/ai'
+import Swal from 'sweetalert2';
 var first = true;
 
 function VacationsPage() {
@@ -26,6 +27,7 @@ function VacationsPage() {
 
     const [tokenData, setTokenData] = useState();
     const [favorites, setFavorites] = useState();
+    const [editId, setEditId] = useState();
 
     useEffect(() => { 
             
@@ -40,7 +42,6 @@ function VacationsPage() {
             {
                 
                 setTokenData(jwtDecode(token).tokenData);
-                console.log("Decoded token: ", jwtDecode(token));
             }
             let vacs = structuredClone(vacations);
             vacs.sort((a, b) => {
@@ -48,7 +49,30 @@ function VacationsPage() {
             })
             getVacations();
             setVacations(vacs);
+            getFavorites();
+
     }, [])
+
+    useEffect(() => {
+        if(editId)
+        {
+            let vacName = document.getElementById("vacName");
+            let vacDescription = document.getElementById("vacDescription");
+            let vacStartDate = document.getElementById("vacStartDate");
+            let vacEndDate = document.getElementById("vacEndDate");
+            let vacPrice = document.getElementById("vacPrice");
+            let preview = document.getElementById("imagePreview");
+            let vacation = vacations.find(e => e.vacID == editId);
+
+            vacName.value = vacation.name;
+            vacDescription.value = vacation.description;
+            vacStartDate.valueAsDate = vacation.startDate;
+            vacEndDate.valueAsDate = vacation.endDate;
+            vacPrice.value = vacation.price;
+            preview.src = url + "/images/" + vacation.imageName;
+        }
+        
+    }, [editId])
 
 
 
@@ -56,7 +80,7 @@ function VacationsPage() {
     {
         let vacations = await axios.get(url + '/getvacations');
         vacations = vacations.data;
-        console.log(vacations);
+        // console.log(vacations);
         let formattedVacs = [];
         for(let i = 0; i < vacations.length; i++)
         {
@@ -66,9 +90,12 @@ function VacationsPage() {
                 endDate: new Date(vacations[i].endDate)
             }
         }
+        console.log("Vacations: ", formattedVacs);
         // console.log(formattedVacs);
         setVacations(formattedVacs);
     }
+
+   
 
     function addVacationButton(e) { 
         console.log("Hey")
@@ -87,7 +114,8 @@ function VacationsPage() {
         fields.price = e.target[4];
         fields.image = e.target[5];
 
-        
+        let vacation = vacations.find(vac => vac.vacID == editId);
+
         // setWarnings(() => {});
         // console.log("Set warnings: ", warnings)
         for(const field of e.target)
@@ -105,19 +133,61 @@ function VacationsPage() {
                     startDate: e.target[2].value,
                     endDate: e.target[3].value,
                     price: e.target[4].value,
+                    token: cookies.getCookie('token'),
                     image: e.target[5].files[0]
+
                 };
-            console.log("JSOn: ", json);
-            let a = await axios.post(url + "/addVacation", json, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
+            let res;
+
+            if(editId)
+            {
+                
+                json = {vacId: editId, imageName: vacation.imageName, ...json};
+                console.log("Json sent: ", json);
+                res = await axios.post(url + "/editVacation", json, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                });
+            }
+            else
+            {
+                res = await axios.post(url + "/addVacation", json, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                });
+            }
+            
+            res = res.data;
+            if(res.ok)
+            {
+                Swal.fire({title: "Added vacation", icon: "success"}).then(() => {
+                    closeModal();
+                    getVacations();
+
                 }
-            });
-            console.log(a)
+                );
+            }
+            else
+            {
+                Swal.fire({title: "Error adding vacation", icon: "error"});
+                getVacations();
+
+            }
+            setEditId(null);
+
         }
+
         
         
         
+    }
+
+    function closeModal()
+    {
+        setWarnings({});
+        setModal(false);
     }
 
     function validateForm(fields)
@@ -155,7 +225,7 @@ function VacationsPage() {
             fields.price.classList.add("red-input");
             flag = false;
         }
-        if(!fields.image.value)
+        if(!editId && !fields.image.value )
         {
             tempWarnings = {...tempWarnings, imageWarning: "Please upload an image"};
             fields.image.classList.add("red-input");
@@ -207,16 +277,79 @@ function VacationsPage() {
 
     async function toggleVacation(vacID)
     {
-        
-        console.log("Toggle vacation: " + vacID);
-        console.log("Token data: ", tokenData);
-        let a = await axios.post(url + "/toggleVacation", {vacID, userID: tokenData.userId});
+
+        let token = cookies.getCookie('token');
+        let a = await axios.post(url + "/toggleVacation", {vacID, token});
         getFavorites();
     }
 
     async function getFavorites()
     {
-        
+        let token = cookies.getCookie('token');
+        let res = await axios.post(url + "/getFavorites", {token});
+        setFavorites(res.data);
+    }
+
+    async function deleteVacation(vacID)
+    {
+        let token = cookies.getCookie('token');
+        let vacation = vacations.find(vac => vac.vacID == vacID);
+
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+          }).then(async (result) => {
+            if (result.isConfirmed) {
+                let res = await axios.post(url + "/deleteVacation", {token, vacID, imageName: vacation.imageName});
+                console.log("delete: ", res.data);
+                getVacations();
+                if(res.data.ok)
+                {
+                    Swal.fire(
+                        'Deleted!',
+                        'Vacation has been deleted.',
+                        'success'
+                      )
+                }
+                else
+                {
+                    let message = "Unknown error";
+                    if(res.data.code == 401)
+                        message = "Invalid or expired token";
+                    
+                    Swal.fire(
+                        'Error deleting vacation!',
+                        message,
+                        'error'
+                      )
+                }
+            }
+          })
+
+    }
+
+    function editVacation(vacId)
+    {
+
+        setModal(true);
+        setEditId(vacId);
+        //Fields getting set in useEffect
+
+    }
+
+    function editPreview(e)
+    {
+        let file = e.target.files[0];
+        let preview = document.getElementById("imagePreview");
+        if(file)
+            preview.src = URL.createObjectURL(e.target.files[0]);
+        else
+            preview.src = url + "/images/blank.png"; 
     }
 
   return (
@@ -224,10 +357,13 @@ function VacationsPage() {
 
     <div className='center vacpage'>
 
-        <Modal id="modal" show={modal} onHide={() => setModal(false)}>
+        <Modal id="modal" show={modal} onHide={() => {closeModal(); setEditId(null);}}>
             <div className='container'>
                 <Modal.Header bsPrefix='modalHeader' closeButton>
-                    <Modal.Title>Add vacation</Modal.Title>
+                    
+                    <Modal.Title>
+                        {editId ? "Edit vacation" : "Add vacation"}
+                    </Modal.Title>
                 </Modal.Header>
 
                 <Modal.Body>
@@ -264,14 +400,13 @@ function VacationsPage() {
                         </div>
                         <div className='form-group my-2'>
                             <label htmlFor="vacImage"> Vacation image</label>
-                            <input type="file" accept="image/*" id="vacImage" placeholder='Vacation name' className='form-control '/> 
+                            <input onChange={editPreview} type="file" name="image" accept="image/*" id="vacImage" placeholder='Vacation name' className='form-control '/> 
                             {warnings.imageWarning && <label id="vacImageWarning" htmlFor="vacImage" className='text-danger text-bold '>{warnings.imageWarning} </label>}
-
                         </div>
+                        <img id="imagePreview"  className="my-2 col-12 border" src={url + "/images/blank.png"}/> 
                         <div className="modal-buttons">
-                            <button type="submit" className='btn btn-primary'> Add</button>
-                            <button onClick={() => {setModal(false)}} type="button" className='btn btn-secondary'> Cancel</button>
-                            
+                            <button type="submit" className='btn btn-primary'> {editId ? "Edit vacation" : "Add vacation"}</button>
+                            <button onClick={() => {closeModal()}} type="button" className='btn btn-secondary'> Cancel</button>
                         </div>
                     </form>
                     
@@ -306,6 +441,7 @@ function VacationsPage() {
                                 <option value={3}> Price</option>
                             </select>
                         </div>
+                        {(tokenData && tokenData.role) ?
                         <div id="addcont" className='col-lg-2 p-0 text-nowrap col-sm-4 add-vac-cont d-flex '>
                             <button id="addbtn" type='button' className='d-flex col-12 add-vac-button btn' onClick={addVacationButton} data-toggle="modal" data-target="#examplemodal"> 
                                 <div id="text" className=''> Add vacation </div>
@@ -313,7 +449,9 @@ function VacationsPage() {
 
                             </button>
 
-                        </div>
+                        </div> : null
+                        }
+                        
                     </div>
                     
                     
@@ -328,18 +466,25 @@ function VacationsPage() {
                                     <div>
                                         <div className=' '>
                                             {
-                                                tokenData && 
-                                                tokenData.admin ?
+                                                (tokenData && 
+                                                tokenData.role) ?
                                                 <>
-                                                    <div className="edit"> Edit <FiEdit className='col-3'></FiEdit>  </div>
-                                                    <div className="delete"> <FiTrash></FiTrash> </div>
+                                                    <div className="edit" onClick={() => editVacation(vac.vacID)}> Edit <FiEdit className='col-3'></FiEdit>  </div>
+                                                    <div className="delete" onClick={() => deleteVacation(vac.vacID)}> <FiTrash></FiTrash> </div>
                                                 </>
                                                 :
-                                                <button onClick={() => {toggleVacation(vac.vacID)}} type="button" className='heart'> <FiHeart id={"heart" + index} className='heartIcon'></FiHeart> </button>
+                                                <button onClick={() => {toggleVacation(vac.vacID)}} type="button" className='heart'>
+                                                    {(favorites && favorites.includes(vac.vacID)) ?
+                                                     <AiFillHeart className='heartIcon red'> </AiFillHeart>
+                                                     :
+                                                     <FiHeart id={"heart" + index} className='heartIcon'></FiHeart> 
+
+                                                    }
+                                                </button>
                                             }
                                             
 
-                                            <img className='col-12 vacimage' src={"http://localhost:3001/images/" + vac.imageName}/> 
+                                            <img className=' vacimage' src={"http://localhost:3001/images/" + vac.imageName}/> 
                                         </div>
                                         <div className='rounded-top'>
                                             <h4> {vac.name} </h4>
@@ -347,7 +492,7 @@ function VacationsPage() {
                                                 <div className=' col-12 date'>{vac.startDate.toLocaleDateString("he-IL")} - {vac.endDate.toLocaleDateString("he-IL")} </div>
                                                 <div className="underDate rounded-top container">
                                                     <div className='description-box'>
-                                                        <p className='description-p'> {vac.description} </p>
+                                                        <p className='description'> {vac.description} </p>
 
                                                     </div>
 

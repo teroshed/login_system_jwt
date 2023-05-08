@@ -11,6 +11,7 @@ const cookieParser = require("cookie-parser");
 
 
 const db = require("./db.js");  
+const fs = require("fs");
 const secret = "secretsecretsecretsecret"
 
 
@@ -41,7 +42,7 @@ app.post("/login", (req, res) => {
         {
             if(result.data != null && result.data.length > 0)
             {
-                let token = generateAccessToken({name: result.data[0].name, last_name: result.data[0].last_name, userId: result.data[0].userId} );
+                let token = generateAccessToken({name: result.data[0].name, last_name: result.data[0].last_name, userId: result.data[0].userId, role: result.data[0].role} );
                 res.send({success: true, token});
             }
             else
@@ -121,7 +122,7 @@ var storage = multer.diskStorage({
     }
   })
   
-  var upload = multer({ storage: storage });
+var upload = multer({ storage: storage });
 
 
 app.post('/addVacation', upload.single('image'), (req, res) => {
@@ -172,18 +173,40 @@ app.post('/verifyToken', (req, res) => {
 
 
 //Add token check,
-app.post('/toggleVacation', (req, res) => { 
-    console.log("toggle vac: ", req.body);
-    db.toggleFavorite(req.body.vacID, req.body.userID);
+app.post('/toggleVacation', async (req, res) => { 
+    let token = req.body.token;
+    try{
+        let decoded = jwt.verify(token, secret);
+        let userId = decoded.tokenData.userId;
+        let ans = await db.toggleFavorite(req.body.vacID, userId);
+        res.send({ok: ans.ok});
+        // console.log("Decoded: ", decoded);
+    } catch(err)
+    {
+        console.log("Error verifying token: ", err.message);
+        res.send({ok: false, code: 401, message: 'Invalid token'});
+    }
+    
     res.send();
 })
 
-app.post('/getFavorites', (req, res) => {
+app.post('/getFavorites', async (req, res) => {
     let token = req.body.token;
+    try{
+        let decoded = jwt.verify(token, secret);
+        let userId = decoded.tokenData.userId;
+        let result = await db.getFavorites(userId)
+        let formattedFavs = [];
+        for(let i = 0; i < result.length; i++) {
+            formattedFavs[i] = result[i].vacID;
+        }
+
+        res.send(formattedFavs);
+    } catch(err) {
+        console.log("Error get favorites: ", err.message);
+        res.send({ok: false, code: 401, message: "Invalid token"});
+    };
     
-    db.getFavorites(result => {
-        res.send(result);
-    });
 });
 
 app.get('/getvacations', (req, res) => {
@@ -191,14 +214,117 @@ app.get('/getvacations', (req, res) => {
         res.send(result);
     });
 
+
 });
 
-    // app.get("/protected", 
-    // expressjwt({ secret: secret, algorithms: ["HS256"] }),
-    // function (req, res) {
-    //     console.log("Req: " + req.url);
-    // }
-    // );
+app.post('/deleteVacation', async (req, res) => { 
+    try{
+        jwt.verify(req.body.token, secret);
+        let ok = await db.deleteVacation(req.body.vacID);
+        deleteImage(req.body.imageName);
+        res.send({ok});
+
+    }
+    catch(err)
+    {
+        console.log("error: ", err.message);
+        res.send({ok: false, code: 401});
+    }
+
+});
+
+
+var editStorage = multer.diskStorage({
+
+    destination: async function (req, file, cb) {
+        // let ans = db.
+        // console.log("Image dest: ", file);
+        cb(null, 'public/images/')
+    },
+    filename: async (req, file, cb) => {
+
+        
+        // console.log("reqaa: ", req.body);
+        // console.log("image: ", file);
+        // let result;
+
+        let newName = req.body.name + req.body.vacId + path.extname(file.originalname);
+        deleteImage(req.body.imageName);
+        cb(null, newName);  
+
+
+        result = await db.editVacation(
+            req.body.name,
+            req.body.description,
+            req.body.startDate,
+            req.body.endDate, 
+            req.body.price,
+            req.body.vacId,
+            newName
+        )
+        
+
+    }
+});
+  
+var editUpload = multer({ storage: editStorage });
+
+
+function renameImage(oldName, newName)
+{
+    fs.rename('./public/images/' + oldName, './public/images/' + newName, () => {
+        
+    });
+}
+
+function deleteImage(name)
+{
+    fs.unlink('./public/images/' + name, err => {
+        if(err)
+            console.log("Error deleting image: " + name);
+        else
+            console.log("Deleted image: " + name);
+    })
+}
+
+app.post('/editVacation', editUpload.single('image'), async (req, res) => {
+
+    if(!req.file)
+    {
+        let newName = req.body.name + req.body.vacId + path.extname(req.body.imageName);
+        let oldName = req.body.imageName;
+        renameImage(oldName, newName);
+
+        let result = db.editVacation(
+            req.body.name,
+            req.body.description,
+            req.body.startDate,
+            req.body.endDate,
+            req.body.price,
+            req.body.vacId,
+            newName
+        )
+        if(result.err)
+        {
+            console.log("error: ", result.err.message);
+            res.send({ok: false});
+        }
+        else
+        {
+            res.send({ok: true});
+        }
+    }
+    else
+    {
+    
+        res.send({ok: true});
+    }
+
+    // console.log("Image: ", req.file); 
+
+});
+
+
 
 
 

@@ -15,7 +15,6 @@ function NavigationBar() {
     useEffect(() => {
         // cookies.deleteCookie("token");
         let token = cookies.getCookie('token');
-        console.log("Token: " + token);
         if(token)
         {
             setTokenData(jwtDecode(token).tokenData);
