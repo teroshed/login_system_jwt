@@ -20,14 +20,15 @@ function VacationsPage() {
     const navigate = useNavigate();
 
     const [vacations, setVacations] = useState([]);
-
     const [warnings, setWarnings] = useState({});
-
     const [modal, setModal] = useState(false);
-
     const [tokenData, setTokenData] = useState();
     const [favorites, setFavorites] = useState();
     const [editId, setEditId] = useState();
+    const [selectedSort, setSelectedSort] = useState(1);
+    const [filter, setFilter] = useState(0);
+
+    const[formattedVacs, setFormattedVacs] = useState([]);
 
     useEffect(() => { 
             
@@ -43,12 +44,7 @@ function VacationsPage() {
                 
                 setTokenData(jwtDecode(token).tokenData);
             }
-            let vacs = structuredClone(vacations);
-            vacs.sort((a, b) => {
-                return a.startDate.getTime() - b.startDate.getTime();
-            })
             getVacations();
-            setVacations(vacs);
             getFavorites();
 
     }, [])
@@ -75,12 +71,14 @@ function VacationsPage() {
     }, [editId])
 
 
+    useEffect(() => filterAndSortVacations(), [selectedSort, filter, vacations]);
+
+
 
     async function getVacations()
     {
         let vacations = await axios.get(url + '/getvacations');
         vacations = vacations.data;
-        // console.log(vacations);
         let formattedVacs = [];
         for(let i = 0; i < vacations.length; i++)
         {
@@ -90,9 +88,51 @@ function VacationsPage() {
                 endDate: new Date(vacations[i].endDate)
             }
         }
-        console.log("Vacations: ", formattedVacs);
-        // console.log(formattedVacs);
         setVacations(formattedVacs);
+    }
+
+
+    function filterAndSortVacations(vacpam)
+    {
+        let vacs =  structuredClone(vacations);
+        // return vacs;
+        vacs= vacs.filter(e => {
+            if(filter == 1)
+                return favorites.includes(e.vacID);
+            if(filter == 2)
+                return e.startDate.getTime() > new Date().getTime();
+            if(filter == 3)
+            {
+                let now = new Date();
+                return e.startDate.getTime() < now.getTime() && e.endDate.getTime() > now.getTime();
+            }
+
+            return true;
+        })
+
+
+        vacs.sort((a, b) => {
+            if(selectedSort == 1)
+                return a.startDate.getTime() - b.startDate.getTime();
+            if(selectedSort == 2)
+                return a.name - b.name;
+            if(selectedSort == 3)
+                return a.price - b.price;
+            if(selectedSort == 4)
+                return b.likes - a.likes;
+            // if(selectedSort == 
+        });
+
+        setFormattedVacs(vacs);
+    }
+
+    
+
+    function sortChange(e)
+    {
+        setSelectedSort(e.target.value);
+
+        
     }
 
    
@@ -162,7 +202,8 @@ function VacationsPage() {
             res = res.data;
             if(res.ok)
             {
-                Swal.fire({title: "Added vacation", icon: "success"}).then(() => {
+                let title = (editId) ? "Updated vacation" : "Added vacation";
+                Swal.fire({title, icon: "success"}).then(() => {
                     closeModal();
                     getVacations();
 
@@ -171,7 +212,8 @@ function VacationsPage() {
             }
             else
             {
-                Swal.fire({title: "Error adding vacation", icon: "error"});
+                let title = (editId) ? "Error updating vacation" : "Error adding vacation";
+                Swal.fire({title, icon: "error"});
                 getVacations();
 
             }
@@ -195,9 +237,9 @@ function VacationsPage() {
         // console.log("Validate form:", fields);
         let flag = true;
         let tempWarnings = {};
-        if(fields.name.value.length > 15 || fields.name.value.replaceAll(" ", "").length < 3)
+        if(fields.name.value.length > 32 || fields.name.value.replaceAll(" ", "").length < 3)
         {
-            tempWarnings = {...tempWarnings, nameWarning: "Name must be between 3 and 15 characters"};
+            tempWarnings = {...tempWarnings, nameWarning: "Name must be between 3 and 32 characters"};
             fields.name.classList.add("red-input");
             flag = false;
         }
@@ -258,22 +300,7 @@ function VacationsPage() {
         return flag;
     }
     
-    function sortChange(e)
-    {
-        let sortValue = e.target.value;
-        console.log("AA: '" +sortValue + "'")
-
-        let vacs = structuredClone(vacations);
-        vacs.sort((a, b) => {
-            if(sortValue == 1)
-                return a.startDate.getTime() - b.startDate.getTime();
-            if(sortValue == 2)
-                return a.name - b.name;
-            if(sortValue == 3)
-                return a.price - b.price;
-        });
-        setVacations(vacs);
-    }
+    
 
     async function toggleVacation(vacID)
     {
@@ -281,6 +308,7 @@ function VacationsPage() {
         let token = cookies.getCookie('token');
         let a = await axios.post(url + "/toggleVacation", {vacID, token});
         getFavorites();
+        getVacations();
     }
 
     async function getFavorites()
@@ -350,6 +378,19 @@ function VacationsPage() {
             preview.src = URL.createObjectURL(e.target.files[0]);
         else
             preview.src = url + "/images/blank.png"; 
+    }
+
+    function filterChange(e)
+    {
+        if(e.target.checked)
+        {
+            setFilter(e.target.value);
+        }
+        else
+        {
+            setFilter(0);
+        }
+
     }
 
   return (
@@ -434,12 +475,33 @@ function VacationsPage() {
                         <label htmlFor="sortSelect justify-content-start  "> Sort by:</label>
                     </div>
                     <div className='row d-flex justify-content-between gy-2'>
-                        <div className='col-lg-4 col-md-4'>
-                            <select onChange={sortChange} id="sortSelect" className='form-select ' placeholder='select'>
+                        <div className='col-lg-4 col-md-4 d-flex '>
+                            <select onChange={sortChange} id="sortSelect" className='form-select-sm me-2 ' placeholder='select'>
                                 <option value={1}> Start date </option>
                                 <option value={2}> Name </option>
                                 <option value={3}> Price</option>
+                                <option value={4}> Likes </option>
                             </select>
+                            <div className="d-flex"> 
+                                <div className="form-check check-cont mx-2">
+                                    <input checked={filter == 1} onChange={filterChange} name="filterCheck" className="form-check-input" type="checkbox" value={1} id="favoriteCheckbox"/>
+                                    <label className="form-check-label" htmlFor="favoriteCheckbox">
+                                        Favorites
+                                    </label>
+                                </div>  
+                                <div className="form-check check-cont mx-2">
+                                    <input checked={filter == 2} onChange={filterChange} name="filterCheck" className="form-check-input" type="checkbox" value={2} id="upcomingCheckbox"/>
+                                    <label className="form-check-label" htmlFor="upcomingCheckbox">
+                                        Upcoming
+                                    </label>
+                                </div>  
+                                <div className="form-check check-cont col-2 mx-2">
+                                    <input checked={filter == 3} onChange={filterChange} name="filterCheck" className="form-check-input" type="checkbox" value={3} id="activeCheckbox"/>
+                                    <label className="form-check-label" htmlFor="activeCheckbox">
+                                        Active
+                                    </label>
+                                </div>  
+                            </div>
                         </div>
                         {(tokenData && tokenData.role) ?
                         <div id="addcont" className='col-lg-2 p-0 text-nowrap col-sm-4 add-vac-cont d-flex '>
@@ -458,7 +520,7 @@ function VacationsPage() {
                 </div>
                 <div className='row '>
                     {
-                    vacations.map((vac, index) => 
+                    formattedVacs.map((vac, index) => 
                     {
                         return (
                             <div key={"vac" + index}  className="col-md-4 col-lg-3  g-4" >
@@ -469,22 +531,27 @@ function VacationsPage() {
                                                 (tokenData && 
                                                 tokenData.role) ?
                                                 <>
-                                                    <div className="edit" onClick={() => editVacation(vac.vacID)}> Edit <FiEdit className='col-3'></FiEdit>  </div>
-                                                    <div className="delete" onClick={() => deleteVacation(vac.vacID)}> <FiTrash></FiTrash> </div>
+                                                    <div className="delete" onClick={() => deleteVacation(vac.vacID)}> <FiTrash className="trashIcon"></FiTrash> </div>
                                                 </>
-                                                :
-                                                <button onClick={() => {toggleVacation(vac.vacID)}} type="button" className='heart'>
+                                                : null
+                                                
+                                            }
+                                            <button onClick={() => {toggleVacation(vac.vacID)}} type="button" className='heart'>
                                                     {(favorites && favorites.includes(vac.vacID)) ?
                                                      <AiFillHeart className='heartIcon red'> </AiFillHeart>
                                                      :
                                                      <FiHeart id={"heart" + index} className='heartIcon'></FiHeart> 
 
-                                                    }
+                                                    }   
+                                                    <p className='like'> Like {vac.likes} </p>
                                                 </button>
-                                            }
                                             
+                                            <div className='imageHolder'>
+                                                <img className='vacimage' src={"http://localhost:3001/images/" + vac.imageName}/> 
 
-                                            <img className=' vacimage' src={"http://localhost:3001/images/" + vac.imageName}/> 
+                                                <div className="edit" onClick={() => editVacation(vac.vacID)}> Edit <FiEdit className='col-3'></FiEdit>  </div>
+
+                                            </div>
                                         </div>
                                         <div className='rounded-top'>
                                             <h4> {vac.name} </h4>

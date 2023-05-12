@@ -223,16 +223,24 @@ function toggleFavorite(vacId, userId)
     });
 }
 
-function getVacations(callback)
+
+
+async function getVacations()
 {
-    let query = 'SELECT * FROM vacations'; 
-    con.query(query, (err, res) => {
-        if(err)
-        {
-            console.log("Error getting Vacations: ", err.message);
-        }
-        callback(res);
-    })
+    let query = 'SELECT vacations.*, COUNT(favorites.userID) AS likes FROM vacations LEFT JOIN favorites ON vacations.vacID = favorites.vacID GROUP BY vacations.vacID;'; 
+    let res = await asyncQuery(query);
+    if(res.err)
+    {
+        console.log("Error getting Vacations: ", res.err.message);
+    }
+    return res.res;
+    // con.query(query, (err, res) => {
+    //     if(err)
+    //     {
+    //         console.log("Error getting Vacations: ", err.message);
+    //     }
+    //     callback(res);
+    // })
 }
 
 async function getLastID(table)
@@ -247,7 +255,10 @@ async function deleteVacation(vacID)
 {
     console.log("delete vacation " + vacID);
     let query = `DELETE FROM vacations WHERE vacID = ${vacID}`;
+    let favoriteClean = `DELETE FROM favorites WHERE vacID = ${vacID}`
+    asyncQuery(favoriteClean);    
     let response = await asyncQuery(query);
+    
     if(response.err)
     {
         return false;

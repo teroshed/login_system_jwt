@@ -209,10 +209,11 @@ app.post('/getFavorites', async (req, res) => {
     
 });
 
-app.get('/getvacations', (req, res) => {
-    db.getVacations(result => {
-        res.send(result);
-    });
+
+
+app.get('/getvacations', async  (req, res) => {
+    result = await db.getVacations();
+    res.send(result);
 
 
 });
