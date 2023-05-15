@@ -167,6 +167,14 @@ function LoginForm(props)
         </div>
         
         <div><span className="" id="status">{status} </span></div>
+        <div className=' '> 
+            <hr/>
+            <p> Hint: <br/>  </p>
+            Admin user:
+            <p> Username: admin <br/> Password: admin </p>
+            Regular user: 
+            <p> Username: user <br/> Password: user </p>
+        </div>
     </FormWrapper>
 
   )

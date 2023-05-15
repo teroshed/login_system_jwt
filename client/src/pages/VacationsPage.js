@@ -27,6 +27,8 @@ function VacationsPage() {
     const [editId, setEditId] = useState();
     const [selectedSort, setSelectedSort] = useState(1);
     const [filter, setFilter] = useState(0);
+    const [pages, setPages] = useState(4);
+    const [selectedPage, setSelectedPage] = useState(1);
 
     const[formattedVacs, setFormattedVacs] = useState([]);
 
@@ -267,6 +269,14 @@ function VacationsPage() {
             fields.price.classList.add("red-input");
             flag = false;
         }
+        if(fields.price.value > 10000 || fields.price.value < 0)
+        {
+            tempWarnings = {...tempWarnings, priceWarning: "Price must be between 0 and 10000"};
+            fields.price.classList.add("red-input");
+            flag = false;
+
+
+        }
         if(!editId && !fields.image.value )
         {
             tempWarnings = {...tempWarnings, imageWarning: "Please upload an image"};
@@ -392,6 +402,13 @@ function VacationsPage() {
         }
 
     }
+
+    function pageButton(index)
+    {
+        setSelectedPage(index);
+    }
+
+
 
   return (
     <>
@@ -586,6 +603,26 @@ function VacationsPage() {
                 </div>
                 
             </div>
+        </div>
+        <div className='mt-2 d-flex justify-content-center'>
+            {
+                Array.from({length: pages}).map((e, index) => 
+                {
+                    let className = "btn page-btn mx-2 border d-flex justify-content-center align-items-center ";
+                    className += (selectedPage == index+1) ? "btn-secondary" : "btn-primary";
+                    console.log("class: " + className);
+                    return (
+                    <button onClick={() => pageButton(index+1)} type="button" key={"pagebtn" + index} className={className} >
+                        <div  className='number'>
+                            {index+1}
+                        </div>
+                    </button>
+                    );
+                }
+                    
+                )
+            }
+            
         </div>
         
         

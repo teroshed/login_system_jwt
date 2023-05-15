@@ -50,7 +50,7 @@ function NavigationBar() {
             
             <div className="navbar-right d-flex justify-content-end w-100">
      
-                {tokenData && <button type="button" onClick={() => logout()} className="navbutton"> Hey {tokenData.name} ! Log out </button>}
+                {tokenData && <button type="button" onClick={() => logout()} className="navbutton"> Hey {tokenData.name + " " + tokenData.last_name} ! Log out </button>}
             </div>
         </nav>
     )
